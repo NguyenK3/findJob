@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { CompanyService } from './company.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
@@ -8,16 +8,19 @@ import mongoose from 'mongoose';
 
 @Controller('companies')
 export class CompanyController {
-  constructor(private readonly companyService: CompanyService) {}
+  constructor(private readonly companyService: CompanyService) { }
 
   @Post()
-  create(@Body() createCompanyDto: CreateCompanyDto, @User() user:IUsers) {
+  create(@Body() createCompanyDto: CreateCompanyDto, @User() user: IUsers) {
     return this.companyService.create(createCompanyDto, user);
   }
 
   @Get()
-  findAll() {
-    return this.companyService.findAll();
+  findAll(
+    @Query('page') currentPage: string, 
+    @Query('limit') limit: string, 
+    @Query() qs: string) {
+    return this.companyService.findAll(+currentPage, +limit, qs);
   }
 
   @Get(':id')
