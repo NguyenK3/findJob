@@ -1,16 +1,16 @@
-import { Controller, Injectable } from '@nestjs/common';
+import { Controller, Injectable, Patch } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { create } from 'domain';
-import { Model } from 'mongoose';
-import { User } from './schemas/user.schema';
-import { genSaltSync, hashSync } from 'bcryptjs'
+import mongoose, { Model, Types } from 'mongoose';
+import { User, UserDocument } from './schemas/user.schema';
+import { compare, compareSync, genSaltSync, hashSync } from 'bcryptjs'
+import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 
 @Injectable()
 export class UsersService {
 
-  constructor(@InjectModel(User.name) private userModel: Model<User>) { }
+  constructor(@InjectModel(User.name) private userModel: SoftDeleteModel<UserDocument>) { }
 
   getHashPassWord = (password: string) => {
     const salt = genSaltSync(10);
@@ -32,15 +32,26 @@ export class UsersService {
     return `This action returns all users`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  findOne(id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id)) return 'Not found users'
+    return this.userModel.findOne({ _id: id });
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(updateUserDto: UpdateUserDto) {
+    return await this.userModel.updateOne({ _id: updateUserDto._id }, { ...updateUserDto });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  remove(id: string) {
+    // console.log(mongoose.Types.ObjectId.isValid(id))
+    if (!mongoose.Types.ObjectId.isValid(id)) return 'Not found users'
+    return this.userModel.softDelete({ _id: id });
+  }
+
+  isValidEmail(email: string) {
+    return this.userModel.findOne({ email: email })
+  }
+
+  isValidPassword(password: string, hash: string) {
+    return compareSync(password, hash)
   }
 }
