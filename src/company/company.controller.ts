@@ -2,14 +2,16 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { CompanyService } from './company.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
+import { User } from 'src/customize/customizeDecoration';
+import { IUsers } from 'src/users/interface/users.interface';
 
 @Controller('companies')
 export class CompanyController {
   constructor(private readonly companyService: CompanyService) {}
 
   @Post()
-  create(@Body() createCompanyDto: CreateCompanyDto) {
-    return this.companyService.create(createCompanyDto);
+  create(@Body() createCompanyDto: CreateCompanyDto, @User() user:IUsers) {
+    return this.companyService.create(createCompanyDto, user);
   }
 
   @Get()
