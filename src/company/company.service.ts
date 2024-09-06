@@ -7,6 +7,7 @@ import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUsers } from 'src/users/interface/users.interface';
 import mongoose from 'mongoose';
 import aqp from 'api-query-params';
+import { isEmpty } from 'class-validator';
 
 @Injectable()
 export class CompanyService {
@@ -35,10 +36,10 @@ export class CompanyService {
     let defaultLimit = +limit ? +limit : 10;
     const totalItems = (await this.companyModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
-    // if (isEmpty(sort)) {
-    //   // @ts-ignore: Unreachable code error
-    //   sort = "-updatedAt"
-    // }
+    if (isEmpty(sort)) {
+      // @ts-ignore: Unreachable code error
+      sort = "-updatedAt"
+    }
     const result = await this.companyModel.find(filter)
       .skip(offset)
       .limit(defaultLimit)

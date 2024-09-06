@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { CompanyService } from './company.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
-import { User } from 'src/customize/customizeDecoration';
+import { ResponseMessage, User } from 'src/customize/customizeDecoration';
 import { IUsers } from 'src/users/interface/users.interface';
 import mongoose from 'mongoose';
 
@@ -16,6 +16,7 @@ export class CompanyController {
   }
 
   @Get()
+  @ResponseMessage("Fetch list company with paginatation")
   findAll(
     @Query('page') currentPage: string, 
     @Query('limit') limit: string, 
