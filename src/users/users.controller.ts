@@ -1,39 +1,53 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ObjectId } from 'bson';
-import { create } from 'domain';
-import mongoose, { Types } from 'mongoose';
-import { Public } from 'src/customize/customizeDecoration';
+import { Public, ResponseMessage, User } from 'src/customize/customizeDecoration';
+import { IUsers } from './interface/users.interface';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
-  @Public()
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  @ResponseMessage('Create user successfully')
+  async create(@Body() createUserDto: CreateUserDto, @User() user: IUsers) {
+    let newUser = await this.usersService.create(createUserDto, user);
+    return {
+      data: {
+        _id: newUser?._id,
+        email: newUser?.email
+      }
+    }
   }
 
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  @Public()
+  @ResponseMessage('Fetch A User With Paginate')
+  async findAll(
+    @Query('page') currentPage: string, 
+    @Query('limit') limit: string, 
+    @Query() qs: string) {
+    return await this.usersService.findAll(+currentPage, +limit, qs);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(id);
+  @Public()
+  @ResponseMessage('Fetch A User By Id')
+  async findOne(@Param('id') id: string) {
+    return await this.usersService.findOne(id);
   }
 
   @Patch()
-  update(@Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update({ ...updateUserDto });
+  @ResponseMessage('Update user successfully')
+  async update(@Body() updateUserDto: UpdateUserDto, @User() user: IUsers) {
+    let updateUser = await this.usersService.update({ ...updateUserDto }, user)
+    return updateUser
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(id);
+  @ResponseMessage('Delete user successfully')
+  remove(@Param('id') id: string, @User() user:IUsers) {
+    return this.usersService.remove(id, user);
   }
 }

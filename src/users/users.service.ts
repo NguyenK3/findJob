@@ -1,16 +1,20 @@
-import { Controller, Injectable, Patch } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+import { BadRequestException, Controller, Injectable, Patch } from '@nestjs/common';
+import { CreateUserDto, RegisterUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model, Types } from 'mongoose';
-import { User, UserDocument } from './schemas/user.schema';
+import { User as UserM, UserDocument } from './schemas/user.schema';
 import { compare, compareSync, genSaltSync, hashSync } from 'bcryptjs'
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
+import { IUsers } from './interface/users.interface';
+import { User } from 'src/customize/customizeDecoration';
+import { isEmpty } from 'class-validator';
+import aqp from 'api-query-params';
 
 @Injectable()
 export class UsersService {
 
-  constructor(@InjectModel(User.name) private userModel: SoftDeleteModel<UserDocument>) { }
+  constructor(@InjectModel(UserM.name) private userModel: SoftDeleteModel<UserDocument>) { }
 
   getHashPassWord = (password: string) => {
     const salt = genSaltSync(10);
@@ -18,33 +22,111 @@ export class UsersService {
     return hash
   }
 
-  async create(createUserDto: CreateUserDto) {
-    const hashPassword = this.getHashPassWord(createUserDto.password)
-    const user = await this.userModel.create({
-      email: createUserDto.email,
+  async create(createUserDto: CreateUserDto, @User() user: IUsers) {
+    const { email, password, name, age, gender, address, role, company } = createUserDto
+    const isExistEmail = await this.userModel.findOne({ email });
+    // Kiểm tra đối tượng user
+    if (!user || !user._id) {
+      throw new BadRequestException(`${user} information is missing or invalid`);
+    }
+
+    if (isExistEmail) {
+      throw new BadRequestException(`${email} is already exists`);
+    }
+    const hashPassword = this.getHashPassWord(password)
+    const newUser = await this.userModel.create({
+      email,
       password: hashPassword,
-      username: createUserDto.username
+      name, age, gender, address, role, company,
+      createdBy: {
+        _id: user._id,
+        email: user.email
+      }
     })
+    return newUser;
+  }
+
+  async register(registerUserDto: RegisterUserDto) {
+    const { email, password, name, age, gender, address } = registerUserDto;
+    const isExistEmail = await this.userModel.findOne({ email });
+    if (isExistEmail) {
+      throw new BadRequestException(`${email} is already exists`);
+    }
+    const hashPassword = this.getHashPassWord(password);
+    const user = await this.userModel.create({
+      email,
+      password: hashPassword,
+      name, age, gender, address,
+      role: 'USER'
+    })
+
     return user;
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findAll(currentPage: number, limit: number, qs: string) {
+    const { filter, projection, population } = aqp(qs);
+
+    //Delete original start
+    delete filter.limit
+    delete filter.page
+
+    let { sort } = aqp(qs);
+    let offset = (+currentPage - 1) * (+limit);
+    let defaultLimit = +limit ? +limit : 10;
+    const totalItems = (await this.userModel.find(filter)).length;
+    const totalPages = Math.ceil(totalItems / defaultLimit);
+    if (isEmpty(sort)) {
+      // @ts-ignore: Unreachable code error
+      sort = "-updatedAt"
+    }
+    const result = await this.userModel.find(filter)
+      .skip(offset)
+      .limit(defaultLimit)
+      .select('-password')
+      .sort(sort as any)
+      .populate(population)
+      .exec();
+    return {
+      meta: {
+        current: currentPage, //trang hiện tại
+        pageSize: limit, //số lượng bản ghi đã lấy
+        pages: totalPages, //tổng số trang với điều kiện query
+        total: totalItems // tổng số phần tử (số bản ghi)
+      },
+      result //kết quả query
+    }
   }
 
-  findOne(id: string) {
-    if (!mongoose.Types.ObjectId.isValid(id)) return 'Not found users'
-    return this.userModel.findOne({ _id: id });
+  async findOne(id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id)) throw new BadRequestException('Invalid user ID');
+    return this.userModel.findOne({ _id: id }).select('-password');
   }
 
-  async update(updateUserDto: UpdateUserDto) {
-    return await this.userModel.updateOne({ _id: updateUserDto._id }, { ...updateUserDto });
+  async update(updateUserDto: UpdateUserDto, @User() user: IUsers) {
+    if (!user || !user._id) {
+      throw new BadRequestException(`${user} information is missing or invalid`);
+    }
+    const updateUser = await this.userModel.updateOne({ _id: updateUserDto._id }, {
+      ...updateUserDto,
+      updatedBy: {
+        _id: user._id,
+        email: user.email
+      }
+    })
+    return updateUser
   }
 
-  remove(id: string) {
+  async remove(id: string, @User() user: IUsers) {
     // console.log(mongoose.Types.ObjectId.isValid(id))
-    if (!mongoose.Types.ObjectId.isValid(id)) return 'Not found users'
-    return this.userModel.softDelete({ _id: id });
+    if (!mongoose.Types.ObjectId.isValid(id)) throw new BadRequestException('Invalid user ID');
+    await this.userModel.updateOne({ _id: id }, {
+      deletedBy: {
+        _id: user._id,
+        email: user.email
+      }
+    })
+    const deleteUser = await this.userModel.softDelete({ _id: id });
+    return deleteUser
   }
 
   isValidEmail(email: string) {
