@@ -2,13 +2,11 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
-import { create } from 'domain';
 import { ConfigService } from '@nestjs/config';
-import { get } from 'http';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { JwtAuthGuard } from './auth/jwt/jwt-auth.guard';
 import { TransformInterceptor } from './core/transform.interceptor';
-import { type } from 'os';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -23,6 +21,9 @@ async function bootstrap() {
   app.setViewEngine('ejs');
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalInterceptors(new TransformInterceptor(reflector));
+
+  //Config Cookies
+  app.use(cookieParser());
 
   app.enableCors(
     {

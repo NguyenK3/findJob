@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { Response } from 'express';
+import ms from 'ms';
 import { RegisterUserDto } from 'src/users/dto/create-user.dto';
 import { IUsers } from 'src/users/interface/users.interface';
 import { UsersService } from 'src/users/users.service';
@@ -9,7 +12,8 @@ import { UsersService } from 'src/users/users.service';
 export class AuthService {
     constructor(
         private usersService: UsersService,
-        private jwtService: JwtService
+        private jwtService: JwtService,
+        private configService: ConfigService
     ) { }
 
     async validateUser(username: string, pass: string): Promise<any> {
@@ -25,22 +29,36 @@ export class AuthService {
         return null;
     }
 
-    async login(user: IUsers) {
-        const {_id, email, name, role} = user
-        const payload = { 
-            iss: 'from server', 
+    async login(user: IUsers, response: Response) {
+        const { _id, email, name, role } = user
+        const payload = {
+            iss: 'from server',
             sub: 'Token login',
             _id,
             email,
             name,
             role
         };
+
+        const refresh_token = this.createRefreshToken(payload)
+
+        await this.usersService.updateUserRefreshToken(_id, refresh_token)
+
+        response.cookie('refresh_token', refresh_token, {
+            httpOnly: true,
+            secure: true,
+            //milisecond
+            maxAge: ms(this.configService.get<string>('JWT_REFRESH_TOKEN_EXPIRED_IN'))
+        })
+
         return {
             access_token: this.jwtService.sign(payload),
-            _id,
-            email,
-            name,
-            role
+            user: {
+                _id,
+                email,
+                name,
+                role
+            }
         };
     }
 
@@ -50,5 +68,14 @@ export class AuthService {
             _id: newUser?._id,
             createAt: newUser?.createdAt
         }
+    }
+
+    createRefreshToken = (payload) => {
+        const refesh_token = this.jwtService.sign(payload, {
+            secret: this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET'),
+            expiresIn: ms(this.configService.get<string>('JWT_REFRESH_TOKEN_EXPIRED_IN')) / 1000
+        })
+
+        return refesh_token
     }
 }
