@@ -10,6 +10,7 @@ import { IUsers } from './interface/users.interface';
 import { User } from 'src/customize/customizeDecoration';
 import { isEmpty } from 'class-validator';
 import aqp from 'api-query-params';
+import { error, log } from 'console';
 
 @Injectable()
 export class UsersService {
@@ -137,7 +138,11 @@ export class UsersService {
     return compareSync(password, hash)
   }
 
-  updateUserRefreshToken = async (_id: string, refresh_token: string) => {
-    return await this.userModel.updateOne({_id}, {refresh_token})
+  updateUserRefreshToken = async (_id: string, refreshToken: string) => {
+    return await this.userModel.updateOne({ _id: _id }, { refreshToken })
+  }
+
+  findUserByToken = async (refreshToken: string) => {
+    return await this.userModel.findOne({ refreshToken })
   }
 }

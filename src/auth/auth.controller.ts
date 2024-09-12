@@ -1,9 +1,10 @@
 import { Body, Controller, Get, Post, Render, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { Public, ResponseMessage } from 'src/customize/customizeDecoration';
+import { Public, ResponseMessage, User } from 'src/customize/customizeDecoration';
 import { LocalAuthGuard } from './local/local-auth.guard';
 import { RegisterUserDto } from 'src/users/dto/create-user.dto';
-import { Response } from 'express';
+import { request, Request, Response } from 'express';
+import { IUsers } from 'src/users/interface/users.interface';
 
 
 @Controller('auth')
@@ -27,6 +28,29 @@ export class AuthController {
   @Post('/register')
   async register(@Body() registerUserDTO: RegisterUserDto) {
     return this.authService.register(registerUserDTO)
+  }
+
+  @ResponseMessage('Get an information of user')
+  @Get('/account')
+  async account(@User() user:IUsers) {
+    return {user}
+  }
+
+  @ResponseMessage('Get User by refresh Token')
+  @Public()
+  @Get('/refresh')
+  async refresh(@Req() request: Request, @Res({ passthrough: true }) response: Response ) {
+    const refresh_Token = request.cookies['refresh_token']
+    return this.authService.processNewToken(refresh_Token, response)
+  }
+
+  @ResponseMessage('Logout User')
+  @Post('/logout')
+  async logout(
+    @Res({ passthrough: true }) response: Response,
+    @User() user:IUsers
+  ) {
+    return this.authService.logout(user, response)
   }
 
 
