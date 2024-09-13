@@ -68,8 +68,8 @@ export class UsersService {
     const { filter, projection, population } = aqp(qs);
 
     //Delete original start
-    delete filter.limit
-    delete filter.page
+    delete filter.current
+    delete filter.pageSize
 
     let { sort } = aqp(qs);
     let offset = (+currentPage - 1) * (+limit);

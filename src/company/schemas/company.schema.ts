@@ -7,7 +7,7 @@ export type CompanyDocument = HydratedDocument<Company>;
 export class Company {
 
     @Prop()
-    companyName: string;
+    name: string;
 
     @Prop()
     address: string;
