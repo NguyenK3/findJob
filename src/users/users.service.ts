@@ -10,7 +10,6 @@ import { IUsers } from './interface/users.interface';
 import { User } from 'src/customize/customizeDecoration';
 import { isEmpty } from 'class-validator';
 import aqp from 'api-query-params';
-import { error, log } from 'console';
 
 @Injectable()
 export class UsersService {
@@ -100,7 +99,7 @@ export class UsersService {
 
   async findOne(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id)) throw new BadRequestException('Invalid user ID');
-    return this.userModel.findOne({ _id: id }).select('-password');
+    return await this.userModel.findOne({ _id: id }).select('-password');
   }
 
   async update(updateUserDto: UpdateUserDto, @User() user: IUsers) {

@@ -2,7 +2,7 @@ import { Type } from 'class-transformer';
 import { IsEmail, IsNotEmpty, IsNotEmptyObject, IsObject, IsString, ValidateNested } from 'class-validator';
 import mongoose from 'mongoose';
 
-class Company {
+export class Company {
     @IsString()
     _id: mongoose.Schema.Types.ObjectId;
 

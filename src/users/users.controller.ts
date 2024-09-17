@@ -10,7 +10,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
   @Post()
-  @ResponseMessage('Create user successfully')
+  @ResponseMessage('Create A User')
   async create(@Body() createUserDto: CreateUserDto, @User() user: IUsers) {
     let newUser = await this.usersService.create(createUserDto, user);
     return {
@@ -39,14 +39,14 @@ export class UsersController {
   }
 
   @Patch()
-  @ResponseMessage('Update user successfully')
+  @ResponseMessage('Update A User')
   async update(@Body() updateUserDto: UpdateUserDto, @User() user: IUsers) {
     let updateUser = await this.usersService.update({ ...updateUserDto }, user)
     return updateUser
   }
 
   @Delete(':id')
-  @ResponseMessage('Delete user successfully')
+  @ResponseMessage('Delete A User')
   remove(@Param('id') id: string, @User() user:IUsers) {
     return this.usersService.remove(id, user);
   }
