@@ -40,10 +40,10 @@ export class CompanyController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @User() user: IUsers) {
+  async remove(@Param('id') id: string, @User() user: IUsers) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return 'Not found Company'
     }
-    return this.companyService.remove(id, user);
+    return await this.companyService.remove(id, user);
   }
 }
