@@ -3,6 +3,6 @@ import { CreateJobDto } from './create-job.dto';
 import { IsNotEmpty } from 'class-validator';
 
 export class UpdateJobDto extends PartialType(CreateJobDto) {
-   @IsNotEmpty({message: 'Id not empty'})
-    _id: string
+//    @IsNotEmpty({message: 'Id not empty'})
+//     _id: string
 }

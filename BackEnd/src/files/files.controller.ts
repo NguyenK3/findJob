@@ -6,19 +6,19 @@ import { FilesService } from './files.service';
 import { CreateFileDto } from './dto/create-file.dto';
 import { UpdateFileDto } from './dto/update-file.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Public } from 'src/customize/customizeDecoration';
+import { Public, ResponseMessage } from 'src/customize/customizeDecoration';
 
 @Controller('files')
 export class FilesController {
   constructor(private readonly filesService: FilesService) { }
 
   @Post('upload')
-  @Public()
-  @UseInterceptors(FileInterceptor('file'))
+  @ResponseMessage('Upload Single File')
+  @UseInterceptors(FileInterceptor('fileUpload'))
   uploadFile(@UploadedFile(
     new ParseFilePipeBuilder()
       .addFileTypeValidator({
-        fileType: /^(jpg|jpeg|png|image\/png|gif|txt|doc|docx|text\/plain|pdf|application\/pdf)$/i,
+        fileType: /^(jpg|jpeg|image\/jpeg|png|image\/png|gif|txt|doc|docx|text\/plain|pdf|application\/pdf)$/i,
       })
       .addMaxSizeValidator({
         maxSize: 1024 * 1024
@@ -28,14 +28,19 @@ export class FilesController {
       }),
   ) file: Express.Multer.File) {
     // console.log(file);
+    return {
+      fileName: file.filename
+    }
   }
 
   @Get()
+  @Public()
   findAll() {
     return this.filesService.findAll();
   }
 
   @Get(':id')
+  @Public()
   findOne(@Param('id') id: string) {
     return this.filesService.findOne(+id);
   }

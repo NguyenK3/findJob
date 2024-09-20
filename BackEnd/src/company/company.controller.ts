@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { CompanyService } from './company.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
-import { ResponseMessage, User } from 'src/customize/customizeDecoration';
+import { Public, ResponseMessage, User } from 'src/customize/customizeDecoration';
 import { IUsers } from 'src/users/interface/users.interface';
 import mongoose from 'mongoose';
 
@@ -17,6 +17,7 @@ export class CompanyController {
 
   @Get()
   @ResponseMessage("Fetch list company with paginatation")
+  @Public()
   findAll(
     @Query('current') currentPage: string, 
     @Query('pageSize') limit: string, 
@@ -25,8 +26,9 @@ export class CompanyController {
   }
 
   @Get(':id')
+  @Public()
   findOne(@Param('id') id: string) {
-    return this.companyService.findOne(+id);
+    return this.companyService.findOne(id);
   }
 
   @Patch(':id')
@@ -34,7 +36,6 @@ export class CompanyController {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return 'Not found Company'
     }
-    console.log(user)
     return this.companyService.update(id, updateCompanyDto, user);
   }
 

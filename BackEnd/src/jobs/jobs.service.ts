@@ -67,12 +67,12 @@ export class JobsService {
     return await this.jobModel.findById(id)
   }
 
-  async update(updateJobDto: UpdateJobDto, @User() user: IUsers) {
+  async update(_id: string, updateJobDto: UpdateJobDto, @User() user: IUsers) {
     if (!user || !user._id) {
       throw new BadRequestException(`${user} information is missing or invalid`);
     }
     const updateJob = await this.jobModel.updateOne(
-      { _id: updateJobDto._id },
+      { _id },
       {
         ...updateJobDto,
         updatedBy: {

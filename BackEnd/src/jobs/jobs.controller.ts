@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { JobsService } from './jobs.service';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
-import { ResponseMessage, User } from 'src/customize/customizeDecoration';
+import { Public, ResponseMessage, User } from 'src/customize/customizeDecoration';
 import { IUsers } from 'src/users/interface/users.interface';
 
 @Controller('jobs')
@@ -22,6 +22,7 @@ export class JobsController {
   }
 
   @Get()
+  @Public()
   @ResponseMessage('Fetch A Job With Paginate')
   async findAll(
     @Query('current') currentPage: string, 
@@ -31,15 +32,16 @@ export class JobsController {
   }
 
   @Get(':id')
+  @Public()
   @ResponseMessage('Fetch A User By Id')
   async findOne(@Param('id') id: string) {
     return await this.jobsService.findOne(id);
   }
 
-  @Patch()
+  @Patch(':id')
   @ResponseMessage('Update A Job')
-  async update(@Body() updateJobDto: UpdateJobDto, @User() user: IUsers) {
-    let updateJob = await this.jobsService.update({ ...updateJobDto }, user);
+  async update(@Param('id') id: string, @Body() updateJobDto: UpdateJobDto, @User() user: IUsers) {
+    let updateJob = await this.jobsService.update(id, { ...updateJobDto }, user);
     return updateJob
   }
 
