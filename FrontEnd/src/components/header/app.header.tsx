@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import React from 'react';
 import AppBar from '@mui/material/AppBar';
@@ -11,6 +11,8 @@ import Tab from '@mui/material/Tab';
 import HomeIcon from '@mui/icons-material/Home';
 import SearchIcon from '@mui/icons-material/Search';
 import BusinessIcon from '@mui/icons-material/Business';
+import MenuIcon from '@mui/icons-material/Menu';
+import CloseIcon from '@mui/icons-material/Close';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import IconButton from '@mui/material/IconButton';
@@ -20,6 +22,7 @@ import TwitterIcon from '@mui/icons-material/Twitter';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import { styled } from '@mui/system';
 import Link from 'next/link';
+import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 
 const Logo = styled('img')({
   width: 40,
@@ -84,18 +87,56 @@ const CTAButton = styled(Button)({
 const Header = () => {
   const [value, setValue] = React.useState(0);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
+  const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
+    if (event.type === 'keydown' && (event as React.KeyboardEvent).key === 'Tab') {
+      return;
+    }
+    setDrawerOpen(open);
   };
 
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
+  const drawerContent = (
+    <Box
+      sx={{ width: 250 }}
+      role="presentation"
+      onClick={toggleDrawer(false)}
+      onKeyDown={toggleDrawer(false)}
+    >
+      <IconButton onClick={toggleDrawer(false)} sx={{ float: 'right' }}>
+        <CloseIcon />
+      </IconButton>
+      <Typography variant="h6" sx={{ padding: 2 }}>Menu</Typography>
+      <Tabs
+        value={value}
+        onChange={handleChange}
+        orientation="vertical"
+        sx={{ display: 'flex', flexDirection: 'column' }}
+      >
+        <Tab icon={<HomeIcon />} label="Home" />
+        <Tab icon={<SearchIcon />} label="Search" />
+        <Tab icon={<BusinessIcon />} label="Company" />
+      </Tabs>
+      <Box sx={{ padding: 2 }}>
+        <CTAButton>Sign In Now</CTAButton>
+        <Box display="flex" justifyContent="space-around">
+          <IconButton color="inherit" href="https://facebook.com">
+            <FacebookIcon />
+          </IconButton>
+          <IconButton color="inherit" href="https://twitter.com">
+            <TwitterIcon />
+          </IconButton>
+          <IconButton color="inherit" href="https://linkedin.com">
+            <LinkedInIcon />
+          </IconButton>
+        </Box>
+      </Box>
+    </Box>
+  );
 
   return (
     <CustomAppBar position="static">
@@ -109,81 +150,43 @@ const Header = () => {
           <WebsiteName variant="h6">KabaNoPro</WebsiteName>
         </Box>
 
-        {/* Tabs ở giữa */}
-        <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
+        {/* Tabs ở giữa cho máy tính */}
+        <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent: 'center' }}>
           <Tabs value={value} onChange={handleChange} textColor="inherit">
-            <Tab
-              icon={<HomeIcon />}
-              label="Home"
-              sx={{
-                transition: 'color 0.3s ease, transform 0.3s ease',
-                fontWeight: 'bold',
-                fontSize: '16px',
-                padding: '10px 15px',
-                borderRadius: '20px',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                },
-                ...(value === 0 && {
-                  color: '#e91e63', // Màu cho tab Home khi được chọn
-                }),
-              }}
-            />
-            <Tab
-              icon={<SearchIcon />}
-              label="Search"
-              sx={{
-                transition: 'color 0.3s ease, transform 0.3s ease',
-                fontWeight: 'bold',
-                fontSize: '16px',
-                padding: '10px 15px',
-                borderRadius: '20px',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                },
-                ...(value === 1 && {
-                  color: '#3f51b5', // Màu cho tab Search khi được chọn
-                }),
-              }}
-            />
-            <Tab
-              icon={<BusinessIcon />}
-              label="Company"
-              sx={{
-                transition: 'color 0.3s ease, transform 0.3s ease',
-                fontWeight: 'bold',
-                fontSize: '16px',
-                padding: '10px 15px',
-                borderRadius: '20px',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                },
-                ...(value === 2 && {
-                  color: '#4caf50', // Màu cho tab Company khi được chọn
-                }),
-              }}
-            />
+            <Tab icon={<HomeIcon />} label="Home" />
+            <Tab icon={<SearchIcon />} label="Search" />
+            <Tab icon={<BusinessIcon />} label="Company" />
           </Tabs>
         </Box>
 
-        {/* Biểu tượng mạng xã hội */}
-        <Box display="flex" alignItems="center">
-          <IconButton color="inherit" href="https://facebook.com">
-            <FacebookIcon />
-          </IconButton>
-          <IconButton color="inherit" href="https://twitter.com">
-            <TwitterIcon />
-          </IconButton>
-          <IconButton color="inherit" href="https://linkedin.com">
-            <LinkedInIcon />
+        {/* Biểu tượng menu cho di động */}
+        <Box sx={{ display: { xs: 'flex', md: 'none' }, alignItems: 'center' }}>
+          <IconButton onClick={toggleDrawer(true)} color="inherit">
+            <MenuIcon />
           </IconButton>
         </Box>
 
-        {/* Nút CTA */}
-        <CTAButton>Sign In Now</CTAButton>
+        {/* Nút CTA cho máy tính */}
+        <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
+          <CTAButton>Sign In Now</CTAButton>
+        </Box>
       </Toolbar>
+
+      {/* Swipeable Drawer for mobile menu */}
+      <SwipeableDrawer
+        anchor="right"
+        open={drawerOpen}
+        onClose={toggleDrawer(false)}
+        onOpen={toggleDrawer(true)}
+      >
+        {drawerContent}
+      </SwipeableDrawer>
     </CustomAppBar>
   );
 };
 
 export default Header;
+import { width, borderRadius, color, fontWeight, fontFamily, fontSize, letterSpacing, textTransform, margin, padding, display } from '@mui/system';
+import { transform } from 'next/dist/build/swc';
+import { type } from 'os';
+import { useState, SyntheticEvent } from 'react';

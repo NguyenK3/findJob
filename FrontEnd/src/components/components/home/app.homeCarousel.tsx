@@ -25,44 +25,21 @@ const HomeCarousel = () => {
         modules={[Navigation, Autoplay]}
         style={{ borderRadius: "8px", overflow: "hidden" }}
       >
-        {/* Example of multiple slides */}
-        {[
-          {
-            image:
-              "https://cdn-media.sforum.vn/storage/app/media/wp-content/uploads/2024/01/hinh-nen-anime-thumb.jpg",
-            title: "Discover Your Next Career Move",
-            description:
-              "Connect with top employers and find job opportunities that match your skills and aspirations. Your dream job is just a click away!",
-          },
-          {
-            image:
-              "https://cdn.popsww.com/blog/sites/2/2022/10/nhan-vat-nu-anime-cute-1920x1080.jpg",
-            title: "Land Your Dream Job Today",
-            description:
-              "Browse thousands of job listings from leading companies and take the next big step in your career. Don’t wait—your future starts now.",
-          },
-          {
-            image:
-              "https://simg.zalopay.com.vn/zlp-website/assets/phim_anime_hay_24_590c912b02.jpg",
-            title: "Unlock New Career Opportunities",
-            description:
-              "Whether you're a fresh graduate or an experienced professional, explore endless job opportunities and elevate your career to the next level.",
-          },
-        ].map((slide, index) => (
+        {[...Array(3)].map((_, index) => (
           <SwiperSlide key={index}>
             <Box
               sx={{
                 position: "relative",
-                backgroundImage: `url(${slide.image})`,
+                backgroundImage: (theme) => `url(${slides[index].image})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
-                height: "300px",
+                height: { xs: "200px", sm: "250px", md: "300px" },
                 display: "flex",
                 alignItems: "center",
-                padding: 3,
+                padding: { xs: 4, sm: 5, md: 6 },
                 borderRadius: "8px",
                 transition: "transform 0.3s ease-in-out",
-                "&:hover": { transform: "scale(1.02)" }, // subtle zoom effect on hover
+                "&:hover": { transform: "scale(1.02)" },
               }}
             >
               <Box
@@ -73,14 +50,14 @@ const HomeCarousel = () => {
                   justifyContent: "center",
                   alignItems: "flex-start",
                   gap: 1.5,
-                  p: 8,
-                  backgroundColor: "rgba(0, 0, 0, 0.1)", // Adds a subtle background behind text
+                  p: { xs: 3, sm: 4, md: 5 },
+                  backgroundColor: "rgba(0, 0, 0, 0.1)", // Increased contrast
                   borderRadius: "8px",
-                  boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.2)", // Box shadow for depth
+                  boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.2)",
                   transition:
-                    "transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out", // Smooth transitions
+                    "transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out",
                   "&:hover": {
-                    transform: "scale(1.02)", // Subtle scaling effect on hover
+                    transform: "scale(1.02)",
                     boxShadow: "0px 6px 25px rgba(0, 0, 0, 0.3)",
                   },
                 }}
@@ -91,32 +68,32 @@ const HomeCarousel = () => {
                     color: "#FFF",
                     fontWeight: "bold",
                     mb: 1,
-                    textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)", // Enhanced text shadow for a 3D look
-                    transition: "color 0.3s ease-in-out", // Smooth color transition on hover
-                    "&:hover": {
-                      color: "#FFD700", // Change color on hover
-                    },
+                    textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+                    transition: "color 0.3s ease-in-out",
+                    fontSize: { xs: "0.5rem", sm: "0.75rem", md: "1.125rem" },
+                    "&:hover": { color: "#FFD700" },
                   }}
                 >
-                  {slide.title}
+                  {slides[index].title}
                 </Typography>
                 <Typography
                   variant="body1"
                   sx={{
                     color: "#FFDBBB",
-                    mb: 2, // Margin bottom before the button
-                    lineHeight: 1.5, // Better line height for readability
+                    mb: 2,
+                    lineHeight: 1.5,
                     textShadow: "0px 2px 4px rgba(0, 0, 0, 0.3)",
+                    fontSize: { xs: "0.5rem", sm: "0.75rem", md: "1.125rem" },
                   }}
                 >
-                  {slide.description}
+                  {slides[index].description}
                 </Typography>
                 <Button
                   variant="contained"
                   color="primary"
                   sx={{
-                    px: 3,
-                    py: 1.25,
+                    px: { xs: 2, sm: 3 }, // Responsive padding
+                    py: { xs: 1, sm: 1.25 }, // Responsive padding
                     backgroundColor: "#FF5722",
                     color: "#FFF",
                     borderRadius: "25px",
@@ -124,9 +101,10 @@ const HomeCarousel = () => {
                     transition: "all 0.3s ease-in-out",
                     "&:hover": {
                       backgroundColor: "#E64A19",
-                      transform: "scale(1.1)", // Enhance scaling on hover for emphasis
-                      boxShadow: "0px 6px 20px rgba(230, 74, 25, 0.6)", // Increase shadow on hover
+                      transform: "scale(1.1)",
+                      boxShadow: "0px 6px 20px rgba(230, 74, 25, 0.6)",
                     },
+                    fontSize: { xs: "0.5rem", sm: "0.75rem", md: "0.875rem" }, // Responsive font size
                   }}
                 >
                   Join Now
@@ -136,7 +114,6 @@ const HomeCarousel = () => {
           </SwiperSlide>
         ))}
 
-        {/* Custom Navigation Buttons */}
         <IconButton className="custom-prev" sx={arrowButtonStyle("left")}>
           <ArrowBackIosNewIcon />
         </IconButton>
@@ -148,13 +125,12 @@ const HomeCarousel = () => {
   );
 };
 
-// Arrow button styling
-const arrowButtonStyle = (position: any) => ({
+const arrowButtonStyle = (position: string) => ({
   position: "absolute",
   top: "50%",
   [position]: "10px",
   zIndex: 10,
-  backgroundColor: "rgba(0, 0, 0, 0.5)",
+  backgroundColor: "rgba(0, 0, 0, 0.1)",
   color: "#FFF",
   transform: "translateY(-50%)",
   "&:hover": {
@@ -164,3 +140,24 @@ const arrowButtonStyle = (position: any) => ({
 });
 
 export default HomeCarousel;
+
+const slides = [
+  {
+    image: "https://cdn-media.sforum.vn/storage/app/media/wp-content/uploads/2024/01/hinh-nen-anime-thumb.jpg",
+    title: "Discover Your Next Career Move",
+    description:
+      "Connect with top employers and find job opportunities that match your skills and aspirations. Your dream job is just a click away!",
+  },
+  {
+    image: "https://cdn.popsww.com/blog/sites/2/2022/10/nhan-vat-nu-anime-cute-1920x1080.jpg",
+    title: "Land Your Dream Job Today",
+    description:
+      "Browse thousands of job listings from leading companies and take the next big step in your career. Don’t wait—your future starts now.",
+  },
+  {
+    image: "https://simg.zalopay.com.vn/zlp-website/assets/phim_anime_hay_24_590c912b02.jpg",
+    title: "Unlock New Career Opportunities",
+    description:
+      "Whether you're a fresh graduate or an experienced professional, explore endless job opportunities and elevate your career to the next level.",
+  },
+];
