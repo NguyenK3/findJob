@@ -10,6 +10,11 @@ export class Company {
     name: string;
 }
 
+export class Job {
+    @IsString()
+    _id: mongoose.Schema.Types.ObjectId
+}
+
 export class CreateUserDto {
     @IsEmail({}, { message: 'Email does not value' })
     @IsNotEmpty({ message: 'Email should not be empty' })

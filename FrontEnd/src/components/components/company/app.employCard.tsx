@@ -130,7 +130,3 @@ const EmployerCard = ({ logo, company, skills, locations, jobCount }: EmployerCa
 };
 
 export default EmployerCard;
-import { height, borderRadius, width, padding, textAlign, margin, color, display, fontSize, fontWeight } from '@mui/system';
-import { transform } from 'next/dist/build/swc';
-import { join } from 'path';
-

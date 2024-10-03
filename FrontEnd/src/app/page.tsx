@@ -11,15 +11,19 @@ const Home = () => {
   return (
     <>
       <Header />
-      <Container maxWidth='xl'
-      >
-        <Typography variant="h4" component="h1" gutterBottom className='p-0'>
-        </Typography>
+      <Container maxWidth="xl">
+        <Typography
+          variant="h4"
+          component="h1"
+          gutterBottom
+          className="p-0"
+        ></Typography>
         <HomeCarousel />
         <HomeSection />
         <TopEmployers />
       </Container>
       <Footer />
+      {console.log("Check", process.env.NEXT_PUBLIC_BACKEND_URL)}
     </>
   );
 };
