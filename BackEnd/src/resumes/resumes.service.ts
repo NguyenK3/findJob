@@ -9,6 +9,8 @@ import { Resume, ResumeDocument } from './schemas/resume.schema';
 import aqp from 'api-query-params';
 import { isEmpty } from 'class-validator';
 import mongoose from 'mongoose';
+import { path } from 'path';
+import { path } from 'path';
 
 @Injectable()
 export class ResumesService {
@@ -125,5 +127,16 @@ export class ResumesService {
     return await this.resumeModel.findOne({
       userId: user?._id
     })
+      .sort("-createdAt")
+      .populate([
+        {
+          path: "companyId",
+          select: {name: 1}
+        },
+        {
+          path: "jobId",
+          select: {name: 1}
+        }
+    ])
   }
 }

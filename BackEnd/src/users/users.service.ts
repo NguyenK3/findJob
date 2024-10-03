@@ -99,7 +99,12 @@ export class UsersService {
 
   async findOne(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id)) throw new BadRequestException('Invalid user ID');
-    return await this.userModel.findOne({ _id: id }).select('-password');
+    return await this.userModel.findOne({ _id: id })
+      .select('-password')
+      .populate({
+        path: "role",
+        select: {name: 1, _id: 1}
+      })
   }
 
   async update(updateUserDto: UpdateUserDto, @User() user: IUsers) {
@@ -119,6 +124,11 @@ export class UsersService {
   async remove(id: string, @User() user: IUsers) {
     // console.log(mongoose.Types.ObjectId.isValid(id))
     if (!mongoose.Types.ObjectId.isValid(id)) throw new BadRequestException('Invalid user ID');
+
+    const foundUser = await this.userModel.findById(id)
+    if (foundUser.email == "admin@gmail.com") {
+      throw new BadRequestException("Can't delete account Admin")
+    }
     await this.userModel.updateOne({ _id: id }, {
       deletedBy: {
         _id: user._id,
@@ -130,7 +140,7 @@ export class UsersService {
   }
 
   isValidEmail(email: string) {
-    return this.userModel.findOne({ email: email })
+    return this.userModel.findOne({ email: email }).populate({ path: "role", select: { name: 1, permissions: 1 }})
   }
 
   isValidPassword(password: string, hash: string) {
