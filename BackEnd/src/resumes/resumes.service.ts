@@ -9,8 +9,6 @@ import { Resume, ResumeDocument } from './schemas/resume.schema';
 import aqp from 'api-query-params';
 import { isEmpty } from 'class-validator';
 import mongoose from 'mongoose';
-import { path } from 'path';
-import { path } from 'path';
 
 @Injectable()
 export class ResumesService {
