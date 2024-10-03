@@ -20,6 +20,10 @@ export class PermissionsService {
     }
 
     const { name, apiPath, method, module } = createPermissionDto
+    const isExist = await this.permissionModel.findOne({ apiPath, method })
+    if (isExist) {
+      throw new BadRequestException('Permission with apiPath=${apiPath}, method=${method} has existed')
+    }
     const newPermission = await this.permissionModel.create({
       name, apiPath, method, module,
       createdBy: {
@@ -87,7 +91,7 @@ export class PermissionsService {
   }
 
   async remove(id: string, user: IUsers) {
-    if (!mongoose.Types.ObjectId.isValid(id)) throw new BadRequestException('Invalid Job ID');
+    if (!mongoose.Types.ObjectId.isValid(id)) throw new BadRequestException('Invalid Permission ID');
     await this.permissionModel.updateOne({ _id: id }, {
       deletedBy: {
         _id: user._id,
