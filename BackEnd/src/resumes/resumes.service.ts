@@ -95,14 +95,14 @@ export class ResumesService {
         },
         $push: {
           history:
-            {
-              status,
-              createdAt: new Date,
-              createdBy: {
-                _id: user?._id,
-                email: user?.email
-              }
+          {
+            status,
+            createdAt: new Date,
+            createdBy: {
+              _id: user?._id,
+              email: user?.email
             }
+          }
         }
       }
     )
@@ -117,24 +117,24 @@ export class ResumesService {
         email: user.email
       }
     })
-    const deleteJob = await this.resumeModel.softDelete({ _id});
+    const deleteJob = await this.resumeModel.softDelete({ _id });
     return deleteJob
   }
 
   async findByUser(user: IUsers) {
-    return await this.resumeModel.findOne({
+    return await this.resumeModel.find({
       userId: user?._id
     })
       .sort("-createdAt")
       .populate([
         {
           path: "companyId",
-          select: {name: 1}
+          select: { name: 1 }
         },
         {
           path: "jobId",
-          select: {name: 1}
+          select: { name: 1 }
         }
-    ])
+      ])
   }
 }

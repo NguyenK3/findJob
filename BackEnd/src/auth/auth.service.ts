@@ -1,9 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { log } from 'console';
 import { Response } from 'express';
 import ms from 'ms';
+import { RolesService } from 'src/roles/roles.service';
 import { RegisterUserDto } from 'src/users/dto/create-user.dto';
 import { IUsers } from 'src/users/interface/users.interface';
 import { UsersService } from 'src/users/users.service';
@@ -14,7 +14,8 @@ export class AuthService {
     constructor(
         private usersService: UsersService,
         private jwtService: JwtService,
-        private configService: ConfigService
+        private configService: ConfigService,
+        private roleSevice: RolesService
     ) { }
 
     async validateUser(username: string, pass: string): Promise<any> {
@@ -23,7 +24,19 @@ export class AuthService {
         if (user) {
             const isValid = await this.usersService.isValidPassword(pass, user.password)
             if (isValid === true) {
-                return user
+                const userRole = user.role as unknown as {
+                    _id: string
+                    name: string
+                }
+
+                const temp = await this.roleSevice.findOne(userRole._id)
+
+                const objUser = {
+                    ...user.toObject(),
+                    permissions: temp?.permissions ?? []
+                }
+
+                return objUser
             }
         }
 
@@ -31,7 +44,7 @@ export class AuthService {
     }
 
     async login(user: IUsers, response: Response) {
-        const { _id, email, name, role } = user
+        const { _id, email, name, role, permissions } = user
         const payload = {
             iss: 'from server',
             sub: 'Token login',
@@ -58,7 +71,8 @@ export class AuthService {
                 _id,
                 email,
                 name,
-                role
+                role,
+                permissions
             }
         };
     }
@@ -104,6 +118,13 @@ export class AuthService {
 
                 await this.usersService.updateUserRefreshToken(_id.toString(), refresh_token);
 
+                const userRole = user.role as unknown as {
+                    _id: string
+                    name: string
+                }
+
+                const temp = await this.roleSevice.findOne(userRole._id)
+
                 response.cookie('refresh_token1', refresh_token, {
                     httpOnly: true,
                     secure: true,
@@ -117,7 +138,8 @@ export class AuthService {
                         _id,
                         email,
                         name,
-                        role
+                        role,
+                        permissions: temp?.permissions ?? []
                     }
                 };
 

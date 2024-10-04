@@ -8,6 +8,7 @@ import { Role, RoleDocument } from './schemas/role.schema';
 import mongoose from 'mongoose';
 import { isEmpty } from 'class-validator';
 import aqp from 'api-query-params';
+import { ADMIN_ROLE } from 'src/databases/sample';
 
 @Injectable()
 export class RolesService {
@@ -15,10 +16,10 @@ export class RolesService {
 
   async create(createRoleDto: CreateRoleDto, user: IUsers) {
     const { name, description, isActive, permissions } = createRoleDto
-    // const isExist = await this.roleModel.findOne({ name })
-    // if (isExist) {
-    //   throw new BadRequestException('Role with name="${name}" has existed')
-    // }
+    const isExist = await this.roleModel.findOne({ name })
+    if (isExist) {
+      throw new BadRequestException('Role with name="${name}" has existed')
+    }
     const newRole = this.roleModel.create({
       name, description, isActive, permissions,
       createdBy: {
@@ -74,9 +75,9 @@ export class RolesService {
   async update(_id: string, updateRoleDto: UpdateRoleDto, user: IUsers) {
     const { name, description, isActive, permissions } = updateRoleDto
     const isExist = await this.roleModel.findOne({ name })
-    if (isExist) {
-      throw new BadRequestException('Role with name="${name}" has existed')
-    }
+    // if (isExist) {
+    //   throw new BadRequestException('Role with name="${name}" has existed')
+    // }
     const newUpdateRole = this.roleModel.updateOne({
       name, description, isActive, permissions,
       updatedBy: {
@@ -90,7 +91,7 @@ export class RolesService {
   async remove(id: string, user: IUsers) {
     if (!mongoose.Types.ObjectId.isValid(id)) throw new BadRequestException('Invalid Role ID');
     const foundUser = await this.roleModel.findById(id)
-    if (foundUser.name == "Admin") {
+    if (foundUser.name == ADMIN_ROLE) {
       throw new BadRequestException("Can't delete account Admin")
     }
     await this.roleModel.updateOne({ _id: id }, {
