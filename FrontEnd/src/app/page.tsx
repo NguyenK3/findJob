@@ -6,11 +6,14 @@ import Header from '@/components/header/app.header';
 import HomeSection from '@/components/components/home/app.homeSection';
 import TopEmployers from '@/components/components/company/app.topEmployee';
 import Footer from '@/components/footer/app.footer';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
-const Home = () => {
+const Home = async () => {
+  const session = await getServerSession(authOptions)
+  console.log("Check", session);
   return (
-    <>
-      <Header />
+    <div>
       <Container maxWidth="xl">
         <Typography
           variant="h4"
@@ -22,9 +25,7 @@ const Home = () => {
         <HomeSection />
         <TopEmployers />
       </Container>
-      <Footer />
-      {console.log("Check", process.env.NEXT_PUBLIC_BACKEND_URL)}
-    </>
+    </div>
   );
 };
 

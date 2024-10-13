@@ -1,7 +1,8 @@
 "use client";
 // components/TopEmployers.js
 
-import { Grid, Box, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
+import Grid from "@mui/material/Grid";
 import EmployerCard from "./app.employCard";
 
 const employers = [
@@ -67,7 +68,7 @@ const TopEmployers = () => {
 
       <Grid container spacing={3} justifyContent="center" alignItems="stretch">
         {limitedEmployers.map((employer) => (
-          <Grid item xs={12} sm={6} md={4} key={employer.company}>
+          <Grid xs={12} sm={6} md={4} key={employer.company}>
             <Box sx={{ height: "100%" }}>
               <EmployerCard {...employer} />
             </Box>

@@ -18,6 +18,8 @@
     "@mui/material": "^6.1.1",
     "@mui/material-nextjs": "latest",
     "next": "latest",
+    "next-auth": "^4.24.8",
+    "query-string": "9.1.1",
     "react": "latest",
     "react-dom": "latest",
     "react-material-ui-carousel": "^3.4.2",

@@ -143,6 +143,3 @@ export default function Register() {
     </Box>
   );
 }
-import { type } from 'os';
-import style from 'styled-jsx/style';
-
