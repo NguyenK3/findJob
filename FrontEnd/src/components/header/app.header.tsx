@@ -99,7 +99,6 @@ const Header = () => {
     setAnchorEl(null);
   };
 
-
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
@@ -202,35 +201,39 @@ const Header = () => {
             },
           }}
         >
-        {session ?
-        <>
-          {/* Menu thả xuống người dùng */}
-          <IconButton color="inherit" onClick={handleMenuOpen}>
-            <Avatar alt="User Avatar" src="/user-avatar.png" />
-          </IconButton>
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleMenuClose}
-            keepMounted
-          >
-            <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-            <MenuItem onClick={handleMenuClose}>My Account</MenuItem>
-                <MenuItem onClick={() => {
-                  handleMenuClose
-                  signOut()
-                }}>
-                Logout
-              </MenuItem>
-          </Menu>
-        </>
-            :
+          {session ? (
+            <>
+              {/* Menu thả xuống người dùng */}
+              <IconButton color="inherit" onClick={handleMenuOpen}>
+                <Avatar alt="User Avatar" src="/user-avatar.png" />
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
+                keepMounted
+              >
+                <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
+                <MenuItem onClick={handleMenuClose}>My Account</MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    handleMenuClose;
+                    signOut();
+                  }}
+                >
+                  Logout
+                </MenuItem>
+              </Menu>
+            </>
+          ) : (
             <>
               <CTAButton>
-                <Link href="#" onClick={() => signIn()}>Sign In Now</Link>
+                <Link href="/auth/signin">
+                  Sign In Now
+                </Link>
               </CTAButton>
             </>
-        }
+          )}
         </Box>
       </Toolbar>
 

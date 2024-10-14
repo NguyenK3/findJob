@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import React, { useState } from "react";
 import {
@@ -10,9 +10,58 @@ import {
   Checkbox,
 } from "@mui/material";
 import GoogleIcon from "@mui/icons-material/Google"; // Ensure you have this import
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { error } from "console";
 
 const Login: React.FC = () => {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
+    {}
+  );
+
+  const validateForm = () => {
+    const newErrors: { email?: string; password?: string } = {};
+
+    if (!email) {
+      newErrors.email = "Email không được để trống";
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = "Email không hợp lệ";
+    }
+
+    if (!password) {
+      newErrors.password = "Mật khẩu không được để trống";
+    } else if (password.length < 6) {
+      newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
+    }
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleLogin = async () => {
+    if (validateForm()) {
+      // Handle login logic here
+      // console.log("Email:", email);
+      const res = await signIn("credentials", {
+        username: email,
+        password: password,
+        redirect: false,
+      });
+
+      if (!res?.error) {
+        router.push("/"); // Redirect to home page
+      } else {
+        alert(res.error);
+      }
+    } else {
+      alert("Form is invalid");
+    }
+  };
 
   const handleTogglePassword = () => {
     setShowPassword(!showPassword);
@@ -83,6 +132,9 @@ const Login: React.FC = () => {
               color: "#FFF",
             },
           }}
+          onClick={() => {
+            signIn("google");
+          }}
         >
           Đăng nhập bằng Google
         </Button>
@@ -98,7 +150,13 @@ const Login: React.FC = () => {
           fullWidth
           required
           sx={{ mb: 2 }}
+          onChange={(e) => setEmail(e.target.value)}
         />
+        {errors.email && (
+          <Typography color="error" sx={{ mt: 0 }}>
+            {errors.email}
+          </Typography>
+        )}
         <TextField
           label="Mật khẩu"
           variant="outlined"
@@ -112,7 +170,13 @@ const Login: React.FC = () => {
               </Button>
             ),
           }}
+          onChange={(e) => setPassword(e.target.value)}
         />
+        {errors.password && (
+          <Typography color="error" sx={{ mt: 1 }}>
+            {errors.password}
+          </Typography>
+        )}
 
         <Box
           sx={{
@@ -149,6 +213,7 @@ const Login: React.FC = () => {
               backgroundColor: "#E64A19",
             },
           }}
+          onClick={() => handleLogin()}
         >
           Đăng nhập bằng Email
         </Button>
