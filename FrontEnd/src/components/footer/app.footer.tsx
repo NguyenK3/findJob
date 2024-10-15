@@ -17,7 +17,7 @@ const Footer = () => {
         display: "flex",
         justifyContent: "space-between",
         flexWrap: "wrap",
-        fontFamily: '"Comic Sans MS", sans-serif', // Đổi phông chữ
+        fontFamily: "serif", // Đổi phông chữ
       }}
     >
       {/* Các cột điều hướng */}
@@ -36,7 +36,7 @@ const Footer = () => {
             variant="h5"
             sx={{
               fontWeight: "bold",
-              fontFamily: '"Comic Sans MS", sans-serif',
+              fontFamily: "serif",
               mb: 1,
               "&:hover": {
                 color: "#F6CEFC",

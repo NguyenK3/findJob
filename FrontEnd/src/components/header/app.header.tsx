@@ -44,7 +44,7 @@ const CustomAppBar = styled(AppBar)({
 
 const WebsiteName = styled(Typography)({
   fontWeight: "bold",
-  fontFamily: "Comic Sans MS",
+  fontFamily: "serif",
   fontSize: "24px",
   letterSpacing: "2px",
   color: "#1976d2",

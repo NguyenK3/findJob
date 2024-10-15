@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { ComponentType, ReactElement, useState } from "react";
 import {
   Box,
   Typography,
@@ -8,13 +8,35 @@ import {
   TextField,
   FormControlLabel,
   Checkbox,
+  Snackbar,
+  Slide,
+  SlideProps,
+  Fade,
+  AlertTitle,
 } from "@mui/material";
+import Alert from "@mui/material/Alert";
 import GoogleIcon from "@mui/icons-material/Google"; // Ensure you have this import
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { error } from "console";
+import { TransitionProps } from "@mui/material/transitions";
+
+const SlideTransition = (props: SlideProps) => {
+  return <Slide {...props} direction="left" />;
+};
 
 const Login: React.FC = () => {
+  const [state, setState] = React.useState<{
+    open: boolean;
+    Transition: React.ComponentType<
+      TransitionProps & {
+        children: React.ReactElement<any, any>;
+      }
+    >;
+  }>({
+    open: false,
+    Transition: Fade,
+  });
+
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
@@ -22,6 +44,30 @@ const Login: React.FC = () => {
   const [errors, setErrors] = useState<{ email?: string; password?: string }>(
     {}
   );
+
+  const [resMessage, setResMessage] = useState("");
+
+  const handleClick =
+    (
+      Transition: React.ComponentType<
+        TransitionProps & {
+          children: React.ReactElement<any, any>;
+        }
+      >
+    ) =>
+    () => {
+      setState({
+        open: true,
+        Transition,
+      });
+    };
+
+  const handleClose = () => {
+    setState({
+      ...state,
+      open: false,
+    });
+  };
 
   const validateForm = () => {
     const newErrors: { email?: string; password?: string } = {};
@@ -56,10 +102,11 @@ const Login: React.FC = () => {
       if (!res?.error) {
         router.push("/"); // Redirect to home page
       } else {
-        alert(res.error);
+        handleClick(SlideTransition)();
+        setResMessage(res.error);
       }
     } else {
-      alert("Form is invalid");
+      handleClick(SlideTransition)();
     }
   };
 
@@ -171,6 +218,11 @@ const Login: React.FC = () => {
             ),
           }}
           onChange={(e) => setPassword(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleLogin();
+            }
+          }}
         />
         {errors.password && (
           <Typography color="error" sx={{ mt: 1 }}>
@@ -213,7 +265,7 @@ const Login: React.FC = () => {
               backgroundColor: "#E64A19",
             },
           }}
-          onClick={() => handleLogin()}
+          onClick={handleLogin}
         >
           Đăng nhập bằng Email
         </Button>
@@ -262,6 +314,16 @@ const Login: React.FC = () => {
           ✔ Quản lý hồ sơ và quyền riêng tư của bạn
         </Typography>
       </Box>
+      <Snackbar
+        open={state.open}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        autoHideDuration={1000}
+        onClose={handleClose}
+      >
+        <Alert onClose={handleClose} severity="error" sx={{ width: "100%" }}>
+          {resMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
