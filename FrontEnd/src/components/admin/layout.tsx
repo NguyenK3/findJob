@@ -1,3 +1,4 @@
+"use client";
 import React, { ReactNode, useState } from "react";
 import {
   AppBar,
@@ -24,6 +25,7 @@ import WorkIcon from "@mui/icons-material/Work";
 import TimerIcon from "@mui/icons-material/Timer";
 import LockIcon from "@mui/icons-material/Lock";
 import PeopleIcon from "@mui/icons-material/People";
+import Link from "next/link";
 
 const drawerWidthOpen = 240; // Kích thước sidebar khi mở
 const drawerWidthClosed = 60; // Kích thước sidebar khi đóng
@@ -81,17 +83,20 @@ const Layout = ({ children }: LayoutProps) => {
           { text: "Role", icon: <PeopleIcon /> },
         ].map((item, index) => (
           <ListItem
-            component="li"
+            component={Link}
+            href={`admin/${item.text.toLowerCase()}`}
             key={item.text}
             sx={{
               justifyContent: sidebarOpen ? "initial" : "center", // Canh giữa icon khi sidebar đóng
               padding: sidebarOpen ? "10px 16px" : "10px",
               transition: "all 0.3s ease",
               "&:hover": {
-                backgroundColor: "#e0f7fa",
+                backgroundColor: "#f5feff",
                 transform: "scale(1.05)",
                 boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
               },
+              textDecoration: "none",
+              color: "inherit",
             }}
           >
             <ListItemIcon
