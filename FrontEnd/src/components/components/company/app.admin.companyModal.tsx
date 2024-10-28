@@ -9,21 +9,52 @@ import {
   Typography,
 } from "@mui/material";
 import Grid from "@mui/material/Grid"; // Stable Grid component
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css"; // import the CSS for the Quill editor
-import { transform } from "framer-motion";
 
 interface CompanyModalProps {
   open: boolean;
   handleClose: () => void;
+  isEditMode: boolean;
+  currentCompany: any;
+  handleSubmit: (companyData: any) => void;
 }
 
-const CompanyModal: React.FC<CompanyModalProps> = ({ open, handleClose }) => {
+const CompanyModal: React.FC<CompanyModalProps> = ({
+  open,
+  handleClose,
+  isEditMode,
+  currentCompany,
+  handleSubmit,
+}) => {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null); // for image preview
   const [value, setValue] = useState("");
+  const [companyData, setCompanyData] = useState({
+    name: "",
+    address: "",
+    description: "",
+    logo: null,
+  });
+
+  useEffect(() => {
+    if (isEditMode && currentCompany) {
+      setCompanyData(currentCompany);
+      setValue(currentCompany.description || "");
+      setPreview(currentCompany.logo || null);
+    } else {
+      setCompanyData({
+        name: "",
+        address: "",
+        description: "",
+        logo: null,
+      });
+      setValue("");
+      setPreview(null);
+    }
+  }, [isEditMode, currentCompany]);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const uploadedFile = event.target.files ? event.target.files[0] : null;
@@ -31,6 +62,29 @@ const CompanyModal: React.FC<CompanyModalProps> = ({ open, handleClose }) => {
       setFile(uploadedFile);
       setPreview(URL.createObjectURL(uploadedFile)); // create a preview URL for the uploaded image
     }
+  };
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    setCompanyData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const logo = file ? await convertFileToBase64(file) : companyData.logo;
+    handleSubmit({ ...companyData, description: value, logo });
+  };
+
+  const convertFileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
   };
 
   return (
@@ -49,9 +103,9 @@ const CompanyModal: React.FC<CompanyModalProps> = ({ open, handleClose }) => {
     >
       <DialogContent sx={{ padding: 4 }}>
         <Typography variant="h6" sx={{ marginBottom: 2, fontWeight: "bold" }}>
-          Tạo mới Company
+          {isEditMode ? "Cập nhật Company" : "Tạo mới Company"}
         </Typography>
-        <form>
+        <form onSubmit={handleFormSubmit}>
           <Grid container spacing={2}>
             {/* Tên công ty */}
             <Grid item xs={12}>
@@ -60,6 +114,9 @@ const CompanyModal: React.FC<CompanyModalProps> = ({ open, handleClose }) => {
                 label="Tên công ty"
                 placeholder="Nhập tên công ty"
                 required
+                name="name"
+                value={companyData.name}
+                onChange={handleChange}
               />
             </Grid>
 
@@ -140,6 +197,9 @@ const CompanyModal: React.FC<CompanyModalProps> = ({ open, handleClose }) => {
                 required
                 multiline
                 rows={2}
+                name="address"
+                value={companyData.address}
+                onChange={handleChange}
               />
             </Grid>
 
@@ -173,6 +233,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({ open, handleClose }) => {
               sx={{ display: "flex", justifyContent: "flex-end" }}
             >
               <Button
+                type="submit"
                 variant="outlined"
                 color="warning"
                 sx={{
@@ -185,7 +246,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({ open, handleClose }) => {
                   },
                 }}
               >
-                Tạo mới
+                {isEditMode ? "Cập nhật" : "Tạo mới"}
               </Button>
             </Grid>
           </Grid>

@@ -23,6 +23,12 @@
         "uriFormat": "%s",
         "action": "debugWithChrome"
       }
+    },
+    {
+      "type": "msedge",
+      "name": "http://localhost:3000/admin/company",
+      "request": "launch",
+      "url": "http://localhost:3000/admin/company"
     }
   ]
 }

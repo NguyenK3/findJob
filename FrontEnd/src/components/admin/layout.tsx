@@ -84,7 +84,7 @@ const Layout = ({ children }: LayoutProps) => {
         ].map((item, index) => (
           <ListItem
             component={Link}
-            href={`admin/${item.text.toLowerCase()}`}
+            href={`/admin/${item.text.toLowerCase()}`}
             key={item.text}
             sx={{
               justifyContent: sidebarOpen ? "initial" : "center", // Canh giữa icon khi sidebar đóng
