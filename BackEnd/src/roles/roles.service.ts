@@ -69,7 +69,11 @@ export class RolesService {
       throw new BadRequestException('Role should not found')
     }
 
-    return (await this.roleModel.findById(id)).populate({ path: "permissions", select: { _id: 1, apiPath: 1, name: 1, method: 1, module: 1 } })
+    const role = await this.roleModel.findById(id);
+    if (!role) {
+      throw new BadRequestException('Role not found');
+    }
+    return role.populate({ path: "permissions", select: { _id: 1, apiPath: 1, name: 1, method: 1, module: 1 } });
   }
 
   async update(_id: string, updateRoleDto: UpdateRoleDto, user: IUsers) {
@@ -91,7 +95,7 @@ export class RolesService {
   async remove(id: string, user: IUsers) {
     if (!mongoose.Types.ObjectId.isValid(id)) throw new BadRequestException('Invalid Role ID');
     const foundUser = await this.roleModel.findById(id)
-    if (foundUser.name == ADMIN_ROLE) {
+    if (foundUser && foundUser.name == ADMIN_ROLE) {
       throw new BadRequestException("Can't delete account Admin")
     }
     await this.roleModel.updateOne({ _id: id }, {

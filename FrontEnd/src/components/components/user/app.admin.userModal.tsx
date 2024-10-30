@@ -7,6 +7,8 @@ import {
   DialogContent,
   DialogTitle,
   MenuItem,
+  Select,
+  useTheme,
 } from "@mui/material";
 import { useState, useEffect } from "react";
 
@@ -19,6 +21,7 @@ interface UserDialogProps {
   isEditMode: boolean;
   companies: ICompany[];
   roles: IRole[];
+  roleName: string; // Thêm dòng này
 }
 
 const UserDialog = ({
@@ -30,8 +33,11 @@ const UserDialog = ({
   isEditMode,
   companies,
   roles,
+  roleName,
 }: UserDialogProps) => {
+  const theme = useTheme();
   const [formData, setFormData] = useState({
+    _id: "",
     email: "",
     name: "",
     password: "",
@@ -47,23 +53,21 @@ const UserDialog = ({
 
   useEffect(() => {
     if (user) {
+
       setFormData({
+        _id: user?._id || "",
         email: user.email,
         password: "",
         name: user.name,
         age: user.age,
-        gender:
-          user.gender === "MALE"
-            ? "Nam"
-            : user.gender === "FEMALE"
-            ? "Nữ"
-            : "Khác",
-        role: user.role?._id || "",
+        gender: user.gender === "MALE" ? "Nam" : user.gender === "FEMALE" ? "Nữ" : "Khác",
+        role: user.role || "",
         company: user.company || { _id: "", name: "" },
         address: user.address,
       });
     } else {
       setFormData({
+        _id: "",
         email: "",
         name: "",
         password: "",
@@ -77,7 +81,7 @@ const UserDialog = ({
         address: "",
       });
     }
-  }, [user]);
+  }, [user, roles]);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -118,6 +122,7 @@ const UserDialog = ({
       handleCreate(formData);
     }
     setFormData({
+      _id: "",
       email: "",
       name: "",
       password: "",
@@ -134,127 +139,174 @@ const UserDialog = ({
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-      <DialogTitle>{isEditMode ? "Cập nhật User" : "Tạo mới User"}</DialogTitle>
-      <DialogContent>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              disabled={isEditMode}
-            />
-          </Grid>
-          {!isEditMode && (
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Mật khẩu"
-                name="password"
-                type="password"
-                value={formData.password || ""}
-                onChange={handleChange}
-                required={!isEditMode} // Chỉ yêu cầu mật khẩu khi tạo mới
-              />
-            </Grid>
-          )}
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Tên hiển thị"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Tuổi"
-              name="age"
-              type="number"
-              value={formData.age}
-              onChange={handleChange}
-              required
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              select
-              fullWidth
-              label="Giới tính"
-              name="gender"
-              value={formData.gender}
-              onChange={handleChange}
-              required
-            >
-              <MenuItem value="Nam">Nam</MenuItem>
-              <MenuItem value="Nữ">Nữ</MenuItem>
-              <MenuItem value="Khác">Khác</MenuItem>
-            </TextField>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              select
-              fullWidth
-              label="Vai trò"
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              required
-            >
-              <MenuItem value="">Chọn vai trò</MenuItem>
-              {roles.map((role) => (
-                <MenuItem key={role._id} value={role._id}>
-                  {role.name}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              select
-              fullWidth
-              label="Thuộc Công Ty"
-              name="company"
-              value={formData.company._id}
-              onChange={handleChange}
-              required
-            >
-              <MenuItem value="">Chọn công ty</MenuItem>
-              {companies.map((company) => (
-                <MenuItem key={company._id} value={company._id}>
-                  {company.name}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
+    <Dialog
+    open={open}
+    onClose={handleClose}
+    fullWidth
+    maxWidth="sm"
+    sx={{
+      '& .MuiDialog-paper': {
+        borderRadius: 2, // Rounded corners
+        boxShadow: theme.shadows[10], // Enhance shadow
+        transition: 'transform 0.3s ease-in-out', // Smooth opening/closing transition
+        transform: open ? 'scale(1)' : 'scale(0.95)', // Zoom effect
+      },
+    }}
+  >
+    <DialogTitle>{isEditMode ? "Cập nhật User" : "Tạo mới User"}</DialogTitle>
+    <DialogContent>
+      <Grid container spacing={2}>
+        {/* {isEditMode && (
           <Grid item xs={12}>
             <TextField
+              label="ID"
+              value={formData._id}
               fullWidth
-              label="Địa chỉ"
-              name="address"
-              value={formData.address}
+              InputProps={{ readOnly: true }}
+            />
+          </Grid>
+        )} */}
+        <Grid item xs={12} sm={6}>
+          <TextField
+            fullWidth
+            label="Email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            disabled={isEditMode}
+            sx={{
+              '& .MuiInputBase-root': {
+                backgroundColor: theme.palette.background.paper,
+                '&:focus': {
+                  boxShadow: theme.shadows[2],
+                },
+              },
+            }}
+          />
+        </Grid>
+        {!isEditMode && (
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Mật khẩu"
+              name="password"
+              type="password"
+              value={formData.password || ""}
               onChange={handleChange}
               required
             />
           </Grid>
+        )}
+        <Grid item xs={12} sm={6}>
+          <TextField
+            fullWidth
+            label="Tên hiển thị"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
         </Grid>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose} variant="outlined">
-          Hủy
-        </Button>
-        <Button onClick={handleSubmit} variant="contained" color="primary">
-          {isEditMode ? "Cập nhật" : "Tạo mới"}
-        </Button>
-      </DialogActions>
-    </Dialog>
+        <Grid item xs={12} sm={6}>
+          <TextField
+            fullWidth
+            label="Tuổi"
+            name="age"
+            type="number"
+            value={formData.age}
+            onChange={handleChange}
+            required
+          />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <TextField
+            select
+            fullWidth
+            label="Giới tính"
+            name="gender"
+            value={formData.gender}
+            onChange={handleChange}
+            required
+          >
+            <MenuItem value="Nam">Nam</MenuItem>
+            <MenuItem value="Nữ">Nữ</MenuItem>
+            <MenuItem value="Khác">Khác</MenuItem>
+          </TextField>
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <Select
+            value={formData.role}
+            onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+            displayEmpty
+            fullWidth
+          >
+            {roles.map((role) => (
+              <MenuItem key={role._id} value={role._id}>
+                {role.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <TextField
+            select
+            fullWidth
+            label="Thuộc Công Ty"
+            name="company"
+            value={formData.company._id}
+            onChange={handleChange}
+            required
+          >
+            <MenuItem value="">Chọn công ty</MenuItem>
+            {companies.map((company) => (
+              <MenuItem key={company._id} value={company._id}>
+                {company.name}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="Địa chỉ"
+            name="address"
+            value={formData.address}
+            onChange={handleChange}
+            required
+          />
+        </Grid>
+      </Grid>
+    </DialogContent>
+    <DialogActions>
+      <Button
+        onClick={handleClose}
+        variant="outlined"
+        sx={{
+          '&:hover': {
+            backgroundColor: theme.palette.error.light,
+            color: theme.palette.common.white,
+          },
+        }}
+      >
+        Hủy
+      </Button>
+      <Button
+        onClick={handleSubmit}
+        variant="contained"
+        color="primary"
+        sx={{
+          transition: 'all 0.2s ease-in-out',
+          '&:hover': {
+            boxShadow: theme.shadows[4],
+            transform: 'scale(1.05)',
+          },
+        }}
+      >
+        {isEditMode ? "Cập nhật" : "Tạo mới"}
+      </Button>
+    </DialogActions>
+  </Dialog>
   );
 };
 

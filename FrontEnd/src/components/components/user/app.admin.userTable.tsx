@@ -19,9 +19,10 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { format } from "date-fns";
 import UserDialog from "./app.admin.userModal";
+import { useSnackbar } from "notistack";
 
 const access_token =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmcm9tIHNlcnZlciIsInN1YiI6IlRva2VuIGxvZ2luIiwiX2lkIjoiNjcxYjA0MTU5ZmMwNGU3NjZiY2ZhNGVhIiwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJuYW1lIjoiSSdtIGFkbWluIiwicm9sZSI6eyJfaWQiOiI2NzFiMDQxNTlmYzA0ZTc2NmJjZmE0ZTUiLCJuYW1lIjoiU1VQRVJfQURNSU4ifSwiaWF0IjoxNzI5ODU0MTkwLCJleHAiOjE3Mjk5NDA1OTB9.ERqyk_Fc910o493t3jEJc4WwtKOScRCiNhrVrUTpqRo";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmcm9tIHNlcnZlciIsInN1YiI6IlRva2VuIGxvZ2luIiwiX2lkIjoiNjcxYjA0MTU5ZmMwNGU3NjZiY2ZhNGViIiwiZW1haWwiOiJrYWJhbm9wcm9AZ21haWwuY29tIiwibmFtZSI6IkknbSBLYWJhTm9Qcm8iLCJyb2xlIjp7Il9pZCI6IjY3MWIwNDE1OWZjMDRlNzY2YmNmYTRlNSIsIm5hbWUiOiJTVVBFUl9BRE1JTiJ9LCJpYXQiOjE3MzAxMTc3MjYsImV4cCI6MTczMDIwNDEyNn0.EnQ6KoYA0vBDoV3d2T54kgj-wQgSkoKjIhy79YF1uFk";
 
 const fetchUsers = async (
   page: number,
@@ -44,6 +45,7 @@ const fetchUsers = async (
       throw new Error("Failed to fetch users");
     }
     const d = await response.json();
+    // console.log("Fetched users:", d.data.result); // Thêm dòng này để kiểm tra dữ liệu người dùng
     return { users: d.data.result, totalCount: d.data.meta.total };
   } catch (error) {
     console.error("Error fetching users:", error);
@@ -82,12 +84,35 @@ const fetchRoles = async () => {
       throw new Error("Failed to fetch roles");
     }
     const data = await response.json();
+    // console.log("Fetched roles:", data.data.result); // Thêm dòng này để kiểm tra dữ liệu roles
     return data.data.result;
   } catch (error) {
     console.error("Error fetching roles:", error);
     return [];
   }
 };
+
+const fetchRoleById = async (roleId: string) => {
+  try {
+    const response = await fetch(`http://localhost:8000/api/v1/roles/${roleId}`, {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+        "Content-Type": "application/json",
+      },
+  })
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch roles");
+  }
+  const data = await response.json();
+  // console.log("Fetched roles:", data.data.result); // Thêm dòng này để kiểm tra dữ liệu roles
+  // console.log("data: ", data)
+  return data.data.name;
+  } catch (error) {
+    console.error("Error fetching roles:", error);
+    return [];
+  }
+}
 
 interface UsersTableProps {
   orderBy: string;
@@ -112,6 +137,8 @@ const UsersTable: React.FC<UsersTableProps> = ({
   const [userModalOpen, setUserModalOpen] = React.useState(false);
   const [isEditMode, setIsEditMode] = React.useState(false);
   const [currentUser, setCurrentUser] = React.useState<IUser | null>(null);
+  const [roleName, setRoleName] = React.useState("");
+  const { enqueueSnackbar } = useSnackbar(); // Thêm dòng này
 
   React.useEffect(() => {
     const loadUsers = async () => {
@@ -137,8 +164,10 @@ const UsersTable: React.FC<UsersTableProps> = ({
   React.useEffect(() => {
     const loadRoles = async () => {
       const roles = await fetchRoles();
+      // console.log("Roles:", roles); // Thêm dòng này để kiểm tra dữ liệu roles
       setRoles(roles);
     };
+    
     loadRoles();
   }, []);
 
@@ -168,8 +197,14 @@ const UsersTable: React.FC<UsersTableProps> = ({
         users.filter((user) => user._id && !selectedUsers.includes(user._id))
       );
       setSelectedUsers([]);
+      enqueueSnackbar("Xóa các người dùng đã chọn thành công", {
+        variant: "success",
+      });
     } catch (error) {
       console.error("Error deleting users:", error);
+      enqueueSnackbar("Xóa các người dùng đã chọn thất bại", {
+        variant: "error",
+      });
     }
   };
 
@@ -179,9 +214,36 @@ const UsersTable: React.FC<UsersTableProps> = ({
     setUserModalOpen(true);
   };
 
-  const handleUpdateOpen = (user: IUser) => {
+  const handleDeleteUserById = async (user: IUser) => {
+    try {
+      await fetch(`http://localhost:8000/api/v1/users/${user._id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      // Fetch lại danh sách người dùng sau khi cập nhật thành công
+      const { users, totalCount } = await fetchUsers(page, pageSize, searchName);
+      setUsers(users);
+      setTotalCount(totalCount);
+      enqueueSnackbar("Xóa người dùng thành công", { variant: "success" });
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      enqueueSnackbar("Xóa người dùng thất bại", { variant: "error" });
+    }
+  };
+
+  const handleUpdateOpen = async (user: IUser) => {
     setIsEditMode(true);
     setCurrentUser(user);
+    console.log(user)
+    if (user.role) {
+      const fetchedRoleName = await fetchRoleById(user.role);
+      setRoleName(fetchedRoleName);
+    } else {
+      
+    }
     setUserModalOpen(true);
   };
 
@@ -200,24 +262,28 @@ const UsersTable: React.FC<UsersTableProps> = ({
         },
         body: JSON.stringify(formData),
       });
-      // const responseBody = await response.json();
-      // console.log("Response Body: ", responseBody);
+      // console.log("Response: ", response);
       if (!response.ok) {
         throw new Error("Failed to create user");
       }
-      await fetchUsers(page, pageSize, searchName);
+      // Fetch lại danh sách người dùng sau khi cập nhật thành công
+      const { users, totalCount } = await fetchUsers(page, pageSize, searchName);
+      setUsers(users);
+      setTotalCount(totalCount);
+      enqueueSnackbar("Thêm người dùng thành công", { variant: "success" });
     } catch (error) {
       console.error("Error creating user:", error);
+      enqueueSnackbar("Thêm người dùng thất bại", { variant: "error" });
     }
   };
 
   const handleUserUpdate = async (formData: IUser) => {
     try {
-      // Loại bỏ trường mật khẩu khỏi formData
       const { password, ...updatedFormData } = formData;
-
+      // console.log("Updated form data:", updatedFormData); // Thêm dòng này để kiểm tra dữ liệu cập nhật
+  
       const response = await fetch(
-        `http://localhost:8000/api/v1/users/${currentUser?._id}`,
+        `http://localhost:8000/api/v1/users`,
         {
           method: "PATCH",
           headers: {
@@ -228,21 +294,21 @@ const UsersTable: React.FC<UsersTableProps> = ({
         }
       );
 
-      const responseBody = await response.json();
-      console.log("Response Body: ", responseBody);
-
+      // console.log("response: ", response);
+  
       if (!response.ok) {
         throw new Error("Failed to update user");
       }
-      const updatedUser = await response.json();
-      setUsers((prevUsers) =>
-        prevUsers.map((user) =>
-          user._id === updatedUser._id ? updatedUser : user
-        )
-      );
-      await fetchUsers(page, pageSize, searchName); // Tải lại dữ liệu người dùng sau khi cập nhật
+      // Fetch lại danh sách người dùng sau khi cập nhật thành công
+      const { users, totalCount } = await fetchUsers(page, pageSize, searchName);
+      setUsers(users);
+      setTotalCount(totalCount);
+      enqueueSnackbar("Cập nhật người dùng thành công", {
+        variant: "success",
+      });
     } catch (error) {
       console.error("Error updating user:", error);
+      enqueueSnackbar("Cập nhật người dùng thất bại", { variant: "error" });
     }
   };
 
@@ -294,7 +360,8 @@ const UsersTable: React.FC<UsersTableProps> = ({
           >
             <EditIcon />
           </IconButton>
-          <IconButton color="secondary" aria-label="delete">
+          <IconButton color="secondary" aria-label="delete"
+          onClick={() => handleDeleteUserById(params.row)}>
             <DeleteIcon />
           </IconButton>
         </>
@@ -370,6 +437,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
         isEditMode={isEditMode}
         companies={companies}
         roles={roles}
+        roleName={roleName} // Truyền userNameRole vào đây
       />
     </Box>
   );
