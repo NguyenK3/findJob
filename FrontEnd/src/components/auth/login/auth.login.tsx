@@ -42,7 +42,7 @@ const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{ email?: string; password?: string }>(
-    {}
+    {},
   );
 
   const [resMessage, setResMessage] = useState("");
@@ -53,7 +53,7 @@ const Login: React.FC = () => {
         TransitionProps & {
           children: React.ReactElement<any, any>;
         }
-      >
+      >,
     ) =>
     () => {
       setState({

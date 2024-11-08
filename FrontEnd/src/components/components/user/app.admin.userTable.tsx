@@ -20,99 +20,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { format } from "date-fns";
 import UserDialog from "./app.admin.userModal";
 import { useSnackbar } from "notistack";
-
-const access_token =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmcm9tIHNlcnZlciIsInN1YiI6IlRva2VuIGxvZ2luIiwiX2lkIjoiNjcxYjA0MTU5ZmMwNGU3NjZiY2ZhNGViIiwiZW1haWwiOiJrYWJhbm9wcm9AZ21haWwuY29tIiwibmFtZSI6IkknbSBLYWJhTm9Qcm8iLCJyb2xlIjp7Il9pZCI6IjY3MWIwNDE1OWZjMDRlNzY2YmNmYTRlNSIsIm5hbWUiOiJTVVBFUl9BRE1JTiJ9LCJpYXQiOjE3MzAxMTc3MjYsImV4cCI6MTczMDIwNDEyNn0.EnQ6KoYA0vBDoV3d2T54kgj-wQgSkoKjIhy79YF1uFk";
-
-const fetchUsers = async (
-  page: number,
-  pageSize: number,
-  searchName: string
-) => {
-  try {
-    const response = await fetch(
-      `http://localhost:8000/api/v1/users/?current=${
-        page + 1
-      }&pageSize=${pageSize}&name=/${searchName}/i`,
-      {
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    if (!response.ok) {
-      throw new Error("Failed to fetch users");
-    }
-    const d = await response.json();
-    // console.log("Fetched users:", d.data.result); // Thêm dòng này để kiểm tra dữ liệu người dùng
-    return { users: d.data.result, totalCount: d.data.meta.total };
-  } catch (error) {
-    console.error("Error fetching users:", error);
-    return { users: [], totalCount: 0 };
-  }
-};
-
-const fetchCompanies = async () => {
-  try {
-    const response = await fetch("http://localhost:8000/api/v1/companies", {
-      headers: {
-        Authorization: `Bearer ${access_token}`,
-        "Content-Type": "application/json",
-      },
-    });
-    if (!response.ok) {
-      throw new Error("Failed to fetch companies");
-    }
-    const data = await response.json();
-    return data.data.result;
-  } catch (error) {
-    console.error("Error fetching companies:", error);
-    return [];
-  }
-};
-
-const fetchRoles = async () => {
-  try {
-    const response = await fetch("http://localhost:8000/api/v1/roles", {
-      headers: {
-        Authorization: `Bearer ${access_token}`,
-        "Content-Type": "application/json",
-      },
-    });
-    if (!response.ok) {
-      throw new Error("Failed to fetch roles");
-    }
-    const data = await response.json();
-    // console.log("Fetched roles:", data.data.result); // Thêm dòng này để kiểm tra dữ liệu roles
-    return data.data.result;
-  } catch (error) {
-    console.error("Error fetching roles:", error);
-    return [];
-  }
-};
-
-const fetchRoleById = async (roleId: string) => {
-  try {
-    const response = await fetch(`http://localhost:8000/api/v1/roles/${roleId}`, {
-      headers: {
-        Authorization: `Bearer ${access_token}`,
-        "Content-Type": "application/json",
-      },
-  })
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch roles");
-  }
-  const data = await response.json();
-  // console.log("Fetched roles:", data.data.result); // Thêm dòng này để kiểm tra dữ liệu roles
-  // console.log("data: ", data)
-  return data.data.name;
-  } catch (error) {
-    console.error("Error fetching roles:", error);
-    return [];
-  }
-}
+import { useSession } from "next-auth/react";
 
 interface UsersTableProps {
   orderBy: string;
@@ -138,14 +46,108 @@ const UsersTable: React.FC<UsersTableProps> = ({
   const [isEditMode, setIsEditMode] = React.useState(false);
   const [currentUser, setCurrentUser] = React.useState<IUser | null>(null);
   const [roleName, setRoleName] = React.useState("");
+  const [roleId, setRoleId] = React.useState("");
   const { enqueueSnackbar } = useSnackbar(); // Thêm dòng này
+
+  const { data: session } = useSession();
+  const access_token = session?.access_token;
+
+  const fetchUsers = async (
+    page: number,
+    pageSize: number,
+    searchName: string,
+  ) => {
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/v1/users/?current=${
+          page + 1
+        }&pageSize=${pageSize}&name=/${searchName}/i`,
+        {
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch users");
+      }
+      const d = await response.json();
+      // console.log("Fetched users:", d.data.result); // Thêm dòng này để kiểm tra dữ liệu người dùng
+      return { users: d.data.result, totalCount: d.data.meta.total };
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      return { users: [], totalCount: 0 };
+    }
+  };
+
+  const fetchCompanies = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/api/v1/companies", {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch companies");
+      }
+      const data = await response.json();
+      return data.data.result;
+    } catch (error) {
+      console.error("Error fetching companies:", error);
+      return [];
+    }
+  };
+
+  const fetchRoles = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/api/v1/roles", {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch roles");
+      }
+      const data = await response.json();
+      // console.log("Fetched roles:", data.data.result); // Thêm dòng này để kiểm tra dữ liệu roles
+      return data.data.result;
+    } catch (error) {
+      console.error("Error fetching roles:", error);
+      return [];
+    }
+  };
+
+  const fetchRoleById = async (roleId: string) => {
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/v1/roles/${roleId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch roles");
+      }
+      const data = await response.json();
+      return data.data.name;
+    } catch (error) {
+      console.error("Error fetching roles:", error);
+      return [];
+    }
+  };
 
   React.useEffect(() => {
     const loadUsers = async () => {
       const { users, totalCount } = await fetchUsers(
         page,
         pageSize,
-        searchName
+        searchName,
       );
       setUsers(users);
       setTotalCount(totalCount);
@@ -167,12 +169,12 @@ const UsersTable: React.FC<UsersTableProps> = ({
       // console.log("Roles:", roles); // Thêm dòng này để kiểm tra dữ liệu roles
       setRoles(roles);
     };
-    
+
     loadRoles();
   }, []);
 
   const handleSearchNameChange = (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setSearchName(event.target.value);
   };
@@ -190,11 +192,11 @@ const UsersTable: React.FC<UsersTableProps> = ({
             Authorization: `Bearer ${access_token}`,
             "Content-Type": "application/json",
           },
-        })
+        }),
       );
       await Promise.all(deletePromises);
       setUsers(
-        users.filter((user) => user._id && !selectedUsers.includes(user._id))
+        users.filter((user) => user._id && !selectedUsers.includes(user._id)),
       );
       setSelectedUsers([]);
       enqueueSnackbar("Xóa các người dùng đã chọn thành công", {
@@ -224,7 +226,11 @@ const UsersTable: React.FC<UsersTableProps> = ({
         },
       });
       // Fetch lại danh sách người dùng sau khi cập nhật thành công
-      const { users, totalCount } = await fetchUsers(page, pageSize, searchName);
+      const { users, totalCount } = await fetchUsers(
+        page,
+        pageSize,
+        searchName,
+      );
       setUsers(users);
       setTotalCount(totalCount);
       enqueueSnackbar("Xóa người dùng thành công", { variant: "success" });
@@ -237,13 +243,8 @@ const UsersTable: React.FC<UsersTableProps> = ({
   const handleUpdateOpen = async (user: IUser) => {
     setIsEditMode(true);
     setCurrentUser(user);
-    console.log(user)
-    if (user.role) {
-      const fetchedRoleName = await fetchRoleById(user.role);
-      setRoleName(fetchedRoleName);
-    } else {
-      
-    }
+    const roleId = typeof user.role === "object" ? user.role._id : user.role;
+    setRoleId(roleId || "");
     setUserModalOpen(true);
   };
 
@@ -262,12 +263,16 @@ const UsersTable: React.FC<UsersTableProps> = ({
         },
         body: JSON.stringify(formData),
       });
-      // console.log("Response: ", response);
+      console.log(formData);
       if (!response.ok) {
         throw new Error("Failed to create user");
       }
       // Fetch lại danh sách người dùng sau khi cập nhật thành công
-      const { users, totalCount } = await fetchUsers(page, pageSize, searchName);
+      const { users, totalCount } = await fetchUsers(
+        page,
+        pageSize,
+        searchName,
+      );
       setUsers(users);
       setTotalCount(totalCount);
       enqueueSnackbar("Thêm người dùng thành công", { variant: "success" });
@@ -281,26 +286,25 @@ const UsersTable: React.FC<UsersTableProps> = ({
     try {
       const { password, ...updatedFormData } = formData;
       // console.log("Updated form data:", updatedFormData); // Thêm dòng này để kiểm tra dữ liệu cập nhật
-  
-      const response = await fetch(
-        `http://localhost:8000/api/v1/users`,
-        {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${access_token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(updatedFormData),
-        }
-      );
 
-      // console.log("response: ", response);
-  
+      const response = await fetch(`http://localhost:8000/api/v1/users`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedFormData),
+      });
+
       if (!response.ok) {
         throw new Error("Failed to update user");
       }
       // Fetch lại danh sách người dùng sau khi cập nhật thành công
-      const { users, totalCount } = await fetchUsers(page, pageSize, searchName);
+      const { users, totalCount } = await fetchUsers(
+        page,
+        pageSize,
+        searchName,
+      );
       setUsers(users);
       setTotalCount(totalCount);
       enqueueSnackbar("Cập nhật người dùng thành công", {
@@ -324,7 +328,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
             setSelectedUsers((prevSelected) =>
               prevSelected.includes(params.row._id)
                 ? prevSelected.filter((userId) => userId !== params.row._id)
-                : [...prevSelected, params.row._id]
+                : [...prevSelected, params.row._id],
             );
           }}
         />
@@ -360,8 +364,11 @@ const UsersTable: React.FC<UsersTableProps> = ({
           >
             <EditIcon />
           </IconButton>
-          <IconButton color="secondary" aria-label="delete"
-          onClick={() => handleDeleteUserById(params.row)}>
+          <IconButton
+            color="secondary"
+            aria-label="delete"
+            onClick={() => handleDeleteUserById(params.row)}
+          >
             <DeleteIcon />
           </IconButton>
         </>
@@ -437,7 +444,8 @@ const UsersTable: React.FC<UsersTableProps> = ({
         isEditMode={isEditMode}
         companies={companies}
         roles={roles}
-        roleName={roleName} // Truyền userNameRole vào đây
+        // roleName={roleName}
+        roleId={roleId}
       />
     </Box>
   );

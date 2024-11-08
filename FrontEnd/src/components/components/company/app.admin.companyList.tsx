@@ -31,11 +31,12 @@ import { Edit as EditIcon, Delete as DeleteIcon } from "@mui/icons-material";
 import CompanyModal from "./app.admin.companyModal";
 import { format } from "date-fns";
 import { TransitionProps, useSnackbar } from "notistack";
+import { useSession } from "next-auth/react";
 
 // Define the TransitionComponent
 const Transition = forwardRef(function Transition(
   props: TransitionProps & { children: React.ReactElement },
-  ref: React.Ref<unknown>
+  ref: React.Ref<unknown>,
 ) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
@@ -74,8 +75,8 @@ const CompanyList = () => {
 
   const handleClose = () => setOpen(false);
 
-  const access_token =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmcm9tIHNlcnZlciIsInN1YiI6IlRva2VuIGxvZ2luIiwiX2lkIjoiNjcxYjA0MTU5ZmMwNGU3NjZiY2ZhNGVhIiwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJuYW1lIjoiSSdtIGFkbWluIiwicm9sZSI6eyJfaWQiOiI2NzFiMDQxNTlmYzA0ZTc2NmJjZmE0ZTUiLCJuYW1lIjoiU1VQRVJfQURNSU4ifSwiaWF0IjoxNzI5ODU0MTkwLCJleHAiOjE3Mjk5NDA1OTB9.ERqyk_Fc910o493t3jEJc4WwtKOScRCiNhrVrUTpqRo";
+  const { data: session } = useSession();
+  const access_token = session?.access_token;
 
   useEffect(() => {
     getData();
@@ -92,7 +93,7 @@ const CompanyList = () => {
             Authorization: `Bearer ${access_token}`,
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (!res.ok) {
@@ -104,7 +105,6 @@ const CompanyList = () => {
       if (d.data && d.data.result) {
         let sortedData = d.data.result;
         sortedData = sortData(sortedData, sortModel);
-        console.log("sortedData", sortedData);
         setCompanies(sortedData);
         setTotalCount(d.data.meta.total);
       } else {
@@ -129,13 +129,13 @@ const CompanyList = () => {
   };
 
   const handleSearchNameChange = (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setSearchName(event.target.value);
   };
 
   const handleSearchAddressChange = (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setSearchAddress(event.target.value);
   };
@@ -165,13 +165,13 @@ const CompanyList = () => {
       handleClose();
       enqueueSnackbar(
         isEditMode ? "Cập nhật công ty thành công" : "Thêm công ty thành công",
-        { variant: "success" }
+        { variant: "success" },
       );
     } else {
       console.error("Failed to submit company data");
       enqueueSnackbar(
         isEditMode ? "Cập nhật công ty thất bại" : "Thêm công ty thất bại",
-        { variant: "error" }
+        { variant: "error" },
       );
     }
   };
@@ -185,7 +185,7 @@ const CompanyList = () => {
     setSelectedCompanies((prevSelected) =>
       prevSelected.includes(id)
         ? prevSelected.filter((companyId) => companyId !== id)
-        : [...prevSelected, id]
+        : [...prevSelected, id],
     );
   };
 
@@ -199,7 +199,7 @@ const CompanyList = () => {
             Authorization: `Bearer ${access_token}`,
             "Content-Type": "application/json",
           },
-        }
+        },
       );
       if (response.ok) {
         setCompanies(companies.filter((company) => company._id !== id));
@@ -222,13 +222,13 @@ const CompanyList = () => {
             Authorization: `Bearer ${access_token}`,
             "Content-Type": "application/json",
           },
-        })
+        }),
       );
       await Promise.all(deletePromises);
       setCompanies(
         companies.filter(
-          (company) => company._id && !selectedCompanies.includes(company._id)
-        )
+          (company) => company._id && !selectedCompanies.includes(company._id),
+        ),
       );
       setSelectedCompanies([]);
       enqueueSnackbar("Xóa các công ty đã chọn thành công", {
@@ -237,6 +237,25 @@ const CompanyList = () => {
     } catch (error) {
       console.error("Error deleting companies:", error);
       enqueueSnackbar("Xóa các công ty đã chọn thất bại", { variant: "error" });
+    }
+  };
+
+  const fetchCompanies = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/api/v1/companies", {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch companies");
+      }
+      const data = await response.json();
+      return data.data.result;
+    } catch (error) {
+      console.error("Error fetching companies:", error);
+      return [];
     }
   };
 

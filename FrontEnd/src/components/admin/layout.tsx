@@ -26,6 +26,7 @@ import TimerIcon from "@mui/icons-material/Timer";
 import LockIcon from "@mui/icons-material/Lock";
 import PeopleIcon from "@mui/icons-material/People";
 import Link from "next/link";
+import { signOut } from "next-auth/react";
 
 const drawerWidthOpen = 240; // Kích thước sidebar khi mở
 const drawerWidthClosed = 60; // Kích thước sidebar khi đóng
@@ -182,7 +183,14 @@ const Layout = ({ children }: LayoutProps) => {
             }}
           >
             <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-            <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
+            <MenuItem
+              onClick={(e) => {
+                handleMenuClose;
+                signOut();
+              }}
+            >
+              Logout
+            </MenuItem>
           </Menu>
         </Toolbar>
       </AppBar>

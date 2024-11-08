@@ -24,6 +24,7 @@ import { color, styled } from "@mui/system";
 import Link from "next/link";
 import SwipeableDrawer from "@mui/material/SwipeableDrawer";
 import { useSession, signIn, signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const Logo = styled("img")({
   width: 40,
@@ -90,6 +91,7 @@ const Header = () => {
   const [value, setValue] = React.useState(0);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const router = useRouter();
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -101,6 +103,11 @@ const Header = () => {
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
+    if (newValue === 0) {
+      router.push("/");
+    } else if (newValue === 1) {
+      router.push("/searchJob");
+    }
   };
 
   const toggleDrawer =
@@ -215,9 +222,16 @@ const Header = () => {
               >
                 <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
                 <MenuItem onClick={handleMenuClose}>My Account</MenuItem>
+                {session.user &&
+                  session.user.role &&
+                  session.user.role.name !== "user" && (
+                    <MenuItem onClick={handleMenuClose}>
+                      <Link href="/admin">Admin DashBoard</Link>
+                    </MenuItem>
+                  )}
                 <MenuItem
                   onClick={() => {
-                    handleMenuClose;
+                    handleMenuClose();
                     signOut();
                   }}
                 >
@@ -228,9 +242,7 @@ const Header = () => {
           ) : (
             <>
               <CTAButton>
-                <Link href="/auth/signin">
-                  Sign In Now
-                </Link>
+                <Link href="/auth/signin">Sign In Now</Link>
               </CTAButton>
             </>
           )}

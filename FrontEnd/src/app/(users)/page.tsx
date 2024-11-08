@@ -11,7 +11,6 @@ import { authOptions } from "../api/auth/[...nextauth]/route";
 
 const Home = async () => {
   const session = await getServerSession(authOptions);
-  console.log("Check", session);
   return (
     <div>
       <Container maxWidth="xl">
