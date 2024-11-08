@@ -17,7 +17,7 @@ export const authOptions: AuthOptions = {
          // You can pass any HTML attribute to the <input> tag through the object.
          credentials: {
             username: { label: "Username", type: "text", placeholder: "username" },
-            password: { label: "Password", type: "password" }
+            password: { label: "Password", type: "password", placeholder: "password" }
          },
          async authorize(credentials, req) {
             const res = await sendRequest<IBackendRes<JWT>>({
@@ -55,18 +55,11 @@ export const authOptions: AuthOptions = {
    ],
    callbacks: {
       async jwt({ token, user, account, profile, trigger }) {
-         if (trigger === "signIn") {
-            const res = await sendRequest<IBackendRes<JWT>>({
-               url: "http://localhost:8000/api/v1/auth/login",
-               method: "POST",
-               body: { username: user.email }
-            })
-
-            if (res.data) {
-               token.access_token = res.data.access_token
-               token.refresh_token = res.data.refresh_token
-               token.user = res.data.user
-            }
+         
+         if (trigger === "signIn" && account?.provider === "credentials") {
+            token.access_token = user.access_token
+            token.refresh_token = user.refresh_token
+            token.user = user.user
          }
          return token
       },

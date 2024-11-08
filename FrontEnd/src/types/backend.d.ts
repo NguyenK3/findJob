@@ -15,7 +15,10 @@ declare global {
       age: number
       gender: string
       address: string
-      role?: string
+      role?: {
+         _id: string
+         name: string
+      }
 
       company?: {
          _id: string
@@ -47,7 +50,7 @@ declare global {
       _id?: string
       name: string
       skills: string[]
-      locations: string
+      location: string
       description: string
       salary: number
       quantity: number
