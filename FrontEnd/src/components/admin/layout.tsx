@@ -27,6 +27,7 @@ import LockIcon from "@mui/icons-material/Lock";
 import PeopleIcon from "@mui/icons-material/People";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
+import { useRouter } from 'next/navigation'
 
 const drawerWidthOpen = 240; // Kích thước sidebar khi mở
 const drawerWidthClosed = 60; // Kích thước sidebar khi đóng
@@ -39,6 +40,7 @@ const Layout = ({ children }: LayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+  const router = useRouter()
 
   const handleSidebarToggle = () => {
     setSidebarOpen(!sidebarOpen); // Đóng mở sidebar
@@ -50,6 +52,15 @@ const Layout = ({ children }: LayoutProps) => {
 
   const handleMenuClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleGoBackHome = () => {
+    router.push('/')
+  }
+
+  const handleSignOut = async () => {
+    await signOut({ redirect: false });
+    router.push('/');
   };
 
   const drawer = (
@@ -183,10 +194,11 @@ const Layout = ({ children }: LayoutProps) => {
             }}
           >
             <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
+            <MenuItem onClick={handleGoBackHome}>Go Back Home</MenuItem>
             <MenuItem
               onClick={(e) => {
                 handleMenuClose;
-                signOut();
+                handleSignOut()
               }}
             >
               Logout
