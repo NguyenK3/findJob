@@ -7,7 +7,7 @@ import { Box, Container, Typography } from "@mui/material";
 const SearchJob = () => {
   return (
     <Container
-      maxWidth="fluid"
+      maxWidth={false}
       sx={{
         mt: 4,
       }}

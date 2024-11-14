@@ -12,9 +12,9 @@ import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import WhatshotIcon from "@mui/icons-material/Whatshot";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { IJob } from "@/types/backend.d.ts";
+import JobDetail from "./app.user.jobDetail";
 
-const JobCard = ({ job }: { job: IJob }) => {
+const JobCard = ({ job, onClick }: { job: IJob; onClick: () => void }) => {
   return (
     <Box
       display="flex"
@@ -37,6 +37,7 @@ const JobCard = ({ job }: { job: IJob }) => {
         },
         minHeight: "320px",
       }}
+      onClick={onClick}
     >
       {/* Icon Super Hot */}
       {job.isActive && (
@@ -148,6 +149,12 @@ const JobList = () => {
   const [loading, setLoading] = useState(true);
   const { data: session } = useSession();
 
+  const [selectedJob, setSelectedJob] = useState<IJob | null>(null);
+
+  const handleJobClick = (job: IJob) => {
+    setSelectedJob(job);
+  };
+
   const fetchJobs = async (
     access_token: string,
     current: number,
@@ -201,13 +208,17 @@ const JobList = () => {
 
   return (
     <Box maxWidth="inherit" margin="0" p={2}>
-      <Grid container spacing={3}>
-        {jobs.map((job) => (
-          <Grid item xs={12} sm={6} md={4} lg={3} key={job._id}>
-            <JobCard job={job} />
-          </Grid>
-        ))}
-      </Grid>
+      {selectedJob ? (
+        <JobDetail job={selectedJob} />
+      ) : (
+        <Grid container spacing={3}>
+          {jobs.map((job) => (
+            <Grid item xs={12} sm={6} md={4} lg={3} key={job._id}>
+              <JobCard job={job} onClick={() => handleJobClick(job)} />
+            </Grid>
+          ))}
+        </Grid>
+      )}
     </Box>
   );
 };

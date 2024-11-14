@@ -14,6 +14,8 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import ToggleOnIcon from "@mui/icons-material/ToggleOn";
+import ToggleOffIcon from "@mui/icons-material/ToggleOff";
 import JobModal from "./app.admin.jobModal";
 import {
   DataGrid,
@@ -58,10 +60,10 @@ const JobTable: React.FC = () => {
     const query = new URLSearchParams({
       current: current.toString(),
       pageSize: pageSize.toString(),
-      ...(skills && { skills: `/^${skills}/i` }),
+      ...(skills && { skills }),
       ...(salary && { salary: salary.toString() }),
     });
-
+  
     const response = await fetch(
       `http://localhost:8000/api/v1/jobs/?${query.toString()}`,
       {
@@ -71,6 +73,9 @@ const JobTable: React.FC = () => {
         },
       },
     );
+
+    console.log(response);
+
     if (!response.ok) {
       throw new Error("Failed to fetch jobs");
     }
@@ -243,6 +248,33 @@ const JobTable: React.FC = () => {
     }
   };
 
+  const handleToggleActive = async (id: string, isActive: boolean) => {
+    try {
+      const jobToUpdate = jobs.find((job) => job._id === id);
+      if (jobToUpdate) {
+        await updateJob(id, { ...jobToUpdate, isActive: !isActive });
+      }
+      const data = await fetchJobs(
+        paginationModel.page + 1,
+        paginationModel.pageSize,
+        searchSkills,
+        searchSalary ?? undefined,
+      );
+      setJobs(data);
+      setSnackbar({
+        open: true,
+        message: `Job ${!isActive ? "activated" : "deactivated"} successfully`,
+        severity: "success",
+      });
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        message: `Failed to ${!isActive ? "activate" : "deactivate"} job`,
+        severity: "error",
+      });
+    }
+  };
+
   const handleSearch = () => {
     setPaginationModel({ ...paginationModel, page: 0 });
   };
@@ -272,7 +304,14 @@ const JobTable: React.FC = () => {
       field: "isActive",
       headerName: "Trạng thái",
       flex: 0.3,
-      renderCell: (params) => (params.value ? "Active" : "Inactive"),
+      renderCell: (params) => (
+        <IconButton
+          color={params.value ? "primary" : "default"}
+          onClick={() => handleToggleActive(params.row._id, params.value)}
+        >
+          {params.value ? <ToggleOnIcon /> : <ToggleOffIcon />}
+        </IconButton>
+      ),
     },
     {
       field: "createdAt",

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { SyntheticEvent } from "react";
+import React, { SyntheticEvent, useEffect, useState } from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
@@ -24,7 +24,8 @@ import { color, styled } from "@mui/system";
 import Link from "next/link";
 import SwipeableDrawer from "@mui/material/SwipeableDrawer";
 import { useSession, signIn, signOut } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+import ManageUserModal from "../components/user/app.user.manageUserModal";
 
 const Logo = styled("img")({
   width: 40,
@@ -92,6 +93,8 @@ const Header = () => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const router = useRouter();
+  const pathName = usePathname();
+  const [isManageUserModalOpen, setIsManageUserModalOpen] = useState(false);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -108,6 +111,15 @@ const Header = () => {
     } else if (newValue === 1) {
       router.push("/searchJob");
     }
+  };
+
+  const handleManageUserClick = () => {
+    setIsManageUserModalOpen(true);
+    handleMenuClose();
+  };
+
+  const handleManageUserModalClose = () => {
+    setIsManageUserModalOpen(false);
   };
 
   const toggleDrawer =
@@ -160,6 +172,14 @@ const Header = () => {
       </Box>
     </Box>
   );
+
+  useEffect(() => {
+    if (pathName === '/') {
+      setValue(0);
+    } else if (pathName === '/searchJob') {
+      setValue(1);
+    }
+  }, [pathName]);
 
   return (
     <CustomAppBar position="static">
@@ -220,7 +240,7 @@ const Header = () => {
                 onClose={handleMenuClose}
                 keepMounted
               >
-                <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
+                <MenuItem onClick={handleManageUserClick}>Manage User</MenuItem>
                 <MenuItem onClick={handleMenuClose}>My Account</MenuItem>
                 {session.user &&
                   session.user.role &&
@@ -258,6 +278,10 @@ const Header = () => {
       >
         {drawerContent}
       </SwipeableDrawer>
+      <ManageUserModal
+        open={isManageUserModalOpen}
+        onClose={handleManageUserModalClose}
+      />
     </CustomAppBar>
   );
 };
