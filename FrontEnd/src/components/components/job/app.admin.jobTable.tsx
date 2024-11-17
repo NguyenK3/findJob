@@ -10,6 +10,11 @@ import {
   useTheme,
   Snackbar,
   Alert,
+  Select,
+  MenuItem,
+  FormControlLabel,
+  Switch,
+  Grid,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
@@ -17,11 +22,12 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import ToggleOnIcon from "@mui/icons-material/ToggleOn";
 import ToggleOffIcon from "@mui/icons-material/ToggleOff";
 import JobModal from "./app.admin.jobModal";
+import { format } from "date-fns";
 import {
   DataGrid,
   GridColDef,
   GridPaginationModel,
-  GridToolbar,
+  GridToolbar, GridValueGetter,
 } from "@mui/x-data-grid";
 import { NumericFormat } from "react-number-format";
 import { useSession } from "next-auth/react";
@@ -35,6 +41,8 @@ const JobTable: React.FC = () => {
     page: 0,
     pageSize: 5,
   });
+  const [searchCompany, setSearchCompany] = useState<string | null>(null);
+  const [isActive, setisActive] = useState(false);
   const [companies, setCompanies] = useState<ICompany[]>([]);
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
@@ -44,6 +52,8 @@ const JobTable: React.FC = () => {
 
   const [searchSkills, setSearchSkills] = useState("");
   const [searchSalary, setSearchSalary] = useState<number | null>(null);
+  const [searchLevel, setSearchLevel] = useState<string | null>(null);
+  const [searchLocation, setSearchLocation] = useState<string | null>(null);
 
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
@@ -56,14 +66,20 @@ const JobTable: React.FC = () => {
     pageSize: number,
     skills?: string,
     salary?: number,
-  ): Promise<IJob[]> => {
+    company?: string,
+    isActive?: boolean,
+    level?: string,
+    location?: string, // Thêm tham số location
+  ): Promise<{ jobs: IJob[], total: number }> => {
     const query = new URLSearchParams({
       current: current.toString(),
       pageSize: pageSize.toString(),
-      ...(skills && { skills }),
+      ...(skills && { skills: `/${skills}/i` }),
       ...(salary && { salary: salary.toString() }),
+      ...(company && { "company._id": `/${company}/i` }),
+      ...(level && { level }),
     });
-  
+
     const response = await fetch(
       `http://localhost:8000/api/v1/jobs/?${query.toString()}`,
       {
@@ -74,13 +90,31 @@ const JobTable: React.FC = () => {
       },
     );
 
-    console.log(response);
-
     if (!response.ok) {
       throw new Error("Failed to fetch jobs");
     }
     const data = await response.json();
-    return data.data.result;
+    let jobs = data.data.result;
+
+    if (isActive) {
+      const currentDate = new Date();
+      jobs = jobs.filter((job: IJob) => new Date(job.endDate) >= currentDate);
+    }
+
+    if (salary) {
+      const res = await fetchJobs(current, pageSize, undefined, undefined, undefined, undefined, undefined, undefined);
+      jobs = res.jobs.filter((job: IJob) => job.salary >= salary);
+      return { jobs, total: res.total };
+    }
+
+    if (location) {
+      const res = await fetchJobs(current, pageSize, undefined, undefined, undefined, undefined, undefined, undefined);
+      jobs = res.jobs.filter((job: IJob) => job.location.includes(location));
+      console.log(jobs);
+      // return { jobs, total: res.total };
+    }
+
+    return { jobs, total: data.data.meta.total };
   };
 
   const createJob = async (job: IJob): Promise<IJob> => {
@@ -145,18 +179,26 @@ const JobTable: React.FC = () => {
     }
   };
 
+  const [totalJobs, setTotalJobs] = useState(0); // Add state to keep track of total job count
+
+  // Cập nhật useEffect để bao gồm searchLocation
   useEffect(() => {
     const loadJobs = async () => {
-      const data = await fetchJobs(
+      const { jobs, total } = await fetchJobs(
         paginationModel.page + 1,
         paginationModel.pageSize,
         searchSkills,
         searchSalary ?? undefined,
+        searchCompany ?? undefined,
+        isActive,
+        searchLevel ?? undefined,
+        searchLocation ?? undefined, // Thêm searchLocation vào đây
       );
-      setJobs(data);
+      setJobs(jobs);
+      setTotalJobs(total);
     };
     loadJobs();
-  }, [paginationModel, searchSkills, searchSalary]);
+  }, [paginationModel, searchSkills, searchSalary, searchCompany, isActive, searchLevel, searchLocation]);
 
   useEffect(() => {
     const loadCompanies = async () => {
@@ -179,7 +221,7 @@ const JobTable: React.FC = () => {
         searchSkills,
         searchSalary ?? undefined,
       );
-      setJobs(data);
+      setJobs(data.jobs);
       setOpenModal(false);
       setSnackbar({
         open: true,
@@ -205,7 +247,7 @@ const JobTable: React.FC = () => {
           searchSkills,
           searchSalary ?? undefined,
         );
-        setJobs(data);
+        setJobs(data.jobs);
         setOpenModal(false);
         setSnackbar({
           open: true,
@@ -233,7 +275,7 @@ const JobTable: React.FC = () => {
         searchSkills,
         searchSalary ?? undefined,
       );
-      setJobs(data);
+      setJobs(data.jobs);
       setSnackbar({
         open: true,
         message: "Job deleted successfully",
@@ -252,7 +294,19 @@ const JobTable: React.FC = () => {
     try {
       const jobToUpdate = jobs.find((job) => job._id === id);
       if (jobToUpdate) {
-        await updateJob(id, { ...jobToUpdate, isActive: !isActive });
+        const currentDate = new Date();
+        if (new Date(jobToUpdate.endDate) < currentDate) {
+          setSnackbar({
+            open: true,
+            message: "Cannot activate job past its end date",
+            severity: "error",
+          });
+          await updateJob(id, { ...jobToUpdate, isActive: false });
+          return
+        }
+        else {
+          await updateJob(id, { ...jobToUpdate, isActive: !isActive });
+        }
       }
       const data = await fetchJobs(
         paginationModel.page + 1,
@@ -260,7 +314,7 @@ const JobTable: React.FC = () => {
         searchSkills,
         searchSalary ?? undefined,
       );
-      setJobs(data);
+      setJobs(data.jobs);
       setSnackbar({
         open: true,
         message: `Job ${!isActive ? "activated" : "deactivated"} successfully`,
@@ -280,17 +334,29 @@ const JobTable: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
-    { field: "_id", headerName: "Id", flex: 0.5 },
-    { field: "name", headerName: "Tên Job", flex: 1 },
+    // { field: "_id", headerName: "Id", flex: 0.5 },
+    { field: "name", headerName: "Tên Job", flex: 1.5 },
     {
       field: "location",
       headerName: "Vị trí",
-      flex: 0.5,
+      flex: 2,
+    },
+    {
+      field: "company",
+      headerName: "Công ty",
+      flex: 1,
+      renderCell: (params) => params.row?.company?.name
+    },
+    {
+      field: "skills",
+      headerName: "Kỹ năng",
+      flex: 1.5,
+      // valueGetter: (params) => params.row.skills.join(", "
     },
     {
       field: "salary",
       headerName: "Mức lương",
-      flex: 0.5,
+      flex: 1,
       renderCell: (params) => (
         <NumericFormat
           value={params.value}
@@ -299,11 +365,11 @@ const JobTable: React.FC = () => {
         />
       ),
     },
-    { field: "level", headerName: "Level", flex: 0.3 },
+    { field: "level", headerName: "Level", flex: 1 },
     {
       field: "isActive",
       headerName: "Trạng thái",
-      flex: 0.3,
+      flex: 0.75,
       renderCell: (params) => (
         <IconButton
           color={params.value ? "primary" : "default"}
@@ -314,21 +380,21 @@ const JobTable: React.FC = () => {
       ),
     },
     {
-      field: "createdAt",
-      headerName: "CreatedAt",
-      flex: 0.75,
-      renderCell: (params) => new Date(params.value).toLocaleString(),
+      field: "startDate",
+      headerName: "Ngày bắt đầu",
+      flex: 1,
+      renderCell: (params) => format(new Date(params.value), "dd/MM/yyyy"),
     },
     {
-      field: "updatedAt",
-      headerName: "UpdatedAt",
-      flex: 0.75,
-      renderCell: (params) => new Date(params.value).toLocaleString(),
+      field: "endDate",
+      headerName: "Ngày kết thúc",
+      flex: 1,
+      renderCell: (params) => format(new Date(params.value), "dd/MM/yyyy"),
     },
     {
       field: "actions",
       headerName: "Actions",
-      flex: 0.75,
+      flex: 1,
       renderCell: (params) => (
         <>
           <IconButton
@@ -353,30 +419,141 @@ const JobTable: React.FC = () => {
   ];
 
   return (
-    <Container>
+    <Container maxWidth="xl">
       <Typography variant="h4" sx={{ mb: 4 }}>
         Danh sách Jobs
       </Typography>
 
-      <Box display="flex" alignItems="center" gap={2} sx={{ mb: 3 }}>
-        <TextField
-          label="Kỹ năng"
+      <Grid container spacing={2} sx={{ mb: 4 }}>
+        {/** Nhóm đầu tiên: Kỹ năng, mức lương, địa điểm, và nút "Tìm kiếm", "Làm lại" */}
+        <Grid container spacing={2} item xs={12} direction="row" alignItems="center">
+          <Grid item xs={12} sm={6} md={2}>
+            <TextField
+              label="Kỹ năng"
+              variant="outlined"
+              size="small"
+              value={searchSkills}
+              onChange={(e) => setSearchSkills(e.target.value)}
+              sx={{
+                transition: "all 0.3s ease",
+                "&:hover, &:focus-within": {
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+                  transform: "scale(1.03)",
+                },
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={2}>
+            <NumericFormat
+              customInput={TextField}
+              label="Mức lương"
+              variant="outlined"
+              size="small"
+              thousandSeparator
+              prefix=""
+              value={searchSalary || ""}
+              onValueChange={(values) => setSearchSalary(Number(values.value))}
+              sx={{
+                transition: "all 0.3s ease",
+                "&:hover, &:focus-within": {
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+                  transform: "scale(1.03)",
+                },
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={2}>
+            <TextField
+              label="Địa điểm"
+              variant="outlined"
+              size="small"
+              value={searchLocation || ""}
+              onChange={(e) => setSearchLocation(e.target.value)}
+              sx={{
+                transition: "all 0.3s ease",
+                "&:hover, &:focus-within": {
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+                  transform: "scale(1.03)",
+                },
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={2}>
+            <Select
+              value={searchCompany}
+              onChange={(e) => setSearchCompany(e.target.value)}
+              size="small"
+              sx={{
+                minWidth: 200,
+                transition: "all 0.3s ease",
+                "&:hover, &:focus-within": {
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+                  transform: "scale(1.03)",
+                },
+              }}
+            >
+              <MenuItem value="">
+                <em>Tất cả công ty</em>
+              </MenuItem>
+              {companies.map((company) => (
+                <MenuItem key={company._id} value={company._id}>
+                  {company.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </Grid>
+          <Grid item xs={12} sm={6} md={2}>
+            <Select
+              value={searchLevel}
+              onChange={(e) => setSearchLevel(e.target.value)}
+              size="small"
+              sx={{
+                minWidth: 200,
+                transition: "all 0.3s ease",
+                "&:hover, &:focus-within": {
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+                  transform: "scale(1.03)",
+                },
+              }}
+            >
+              <MenuItem value="">
+                <em>Tất cả level</em>
+              </MenuItem>
+              {["Intern", "Junior", "Mid", "Senior", "Lead"].map((level) => (
+                <MenuItem key={level} value={level}>
+                  {level}
+                </MenuItem>
+              ))}
+            </Select>
+          </Grid>
+          <Grid item xs={12} sm={6} md={2}>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={isActive}
+                  onChange={(e) => setisActive(e.target.checked)}
+                  color="primary"
+                />
+              }
+              label="Job còn thời hạn"
+            />
+          </Grid>
+        </Grid>
+      </Grid>
+
+      <Box gap={2} display="flex" justifyContent="flex-end" marginBottom={3}>
+        <Button
           variant="outlined"
-          size="small"
-          value={searchSkills}
-          onChange={(e) => setSearchSkills(e.target.value)}
-        />
-        <NumericFormat
-          customInput={TextField}
-          label="Mức lương"
-          variant="outlined"
-          size="small"
-          thousandSeparator={true}
-          prefix={""}
-          value={searchSalary !== null ? searchSalary : ""}
-          onValueChange={(values) => setSearchSalary(Number(values.value))}
-        />
-        <Button variant="contained" onClick={handleSearch}>
+          onClick={handleSearch}
+          sx={{
+            transition: "all 0.3s ease",
+            "&:hover": {
+              backgroundColor: "#f5f5f5",
+              boxShadow: "0 6px 12px rgba(0,0,0,0.3)",
+              transform: "scale(1.05)",
+            },
+          }}
+        >
           Tìm kiếm
         </Button>
         <Button
@@ -384,21 +561,36 @@ const JobTable: React.FC = () => {
           onClick={() => {
             setSearchSkills("");
             setSearchSalary(null);
+            setSearchCompany(null);
+            setSearchLevel(null);
+            setisActive(false);
             handleSearch();
+          }}
+          sx={{
+            transition: "all 0.3s ease",
+            "&:hover": {
+              backgroundColor: "#f5f5f5",
+              boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+            },
           }}
         >
           Làm lại
         </Button>
-      </Box>
-
-      <Box display="flex" justifyContent="flex-end" sx={{ mb: 2 }}>
         <Button
-          variant="contained"
+          variant="outlined"
           startIcon={<AddIcon />}
           onClick={() => {
             setCurrentJob(null);
             setIsEditMode(false);
             setOpenModal(true);
+          }}
+          sx={{
+            transition: "all 0.3s ease",
+            "&:hover": {
+              backgroundColor: "#f5f5f5",
+              boxShadow: "0 6px 12px rgba(0,0,0,0.3)",
+              transform: "scale(1.05)",
+            },
           }}
         >
           Thêm mới
@@ -411,6 +603,8 @@ const JobTable: React.FC = () => {
           columns={columns}
           paginationModel={paginationModel}
           pageSizeOptions={[5, 10, 25]}
+          rowCount={totalJobs} // Add totalJobs state to keep track of total job count
+          paginationMode="server" // Enable server-side pagination
           getRowId={(row) => row._id}
           onPaginationModelChange={(model) => setPaginationModel(model)}
           sx={{
@@ -427,7 +621,6 @@ const JobTable: React.FC = () => {
           }}
           showCellVerticalBorder
           showColumnVerticalBorder
-          pagination
           autoHeight
           disableRowSelectionOnClick
           slots={{

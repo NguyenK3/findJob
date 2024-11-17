@@ -77,6 +77,7 @@ declare global {
       name: string
       email: string
       userId: string
+      url: string
       status: string
       companyId: string | {
          _id: string

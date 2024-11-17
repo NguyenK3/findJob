@@ -82,13 +82,15 @@ export class RolesService {
     // if (isExist) {
     //   throw new BadRequestException('Role with name="${name}" has existed')
     // }
-    const newUpdateRole = this.roleModel.updateOne({
-      name, description, isActive, permissions,
-      updatedBy: {
-        _id: user?._id,
-        email: user?.email
-      }
-    })
+    const newUpdateRole = this.roleModel.updateOne(
+      { _id },
+      {
+        name, description, isActive, permissions,
+        updatedBy: {
+          _id: user?._id,
+          email: user?.email
+        }
+      })
     return newUpdateRole;
   }
 

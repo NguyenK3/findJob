@@ -85,8 +85,7 @@ const CompanyList = () => {
   const getData = async () => {
     try {
       const res = await fetch(
-        `http://localhost:8000/api/v1/companies/?current=${
-          page + 1
+        `http://localhost:8000/api/v1/companies/?current=${page + 1
         }&pageSize=${pageSize}&name=/${searchName}/i&address=/${searchAddress}/i`,
         {
           headers: {
@@ -271,7 +270,7 @@ const CompanyList = () => {
         />
       ),
     },
-    { field: "_id", headerName: "Id", flex: 0.2 },
+    // { field: "_id", headerName: "Id", flex: 0, hideable: false },
     { field: "name", headerName: "Tên công ty", flex: 0.3 },
     { field: "address", headerName: "Địa chỉ", flex: 0.4 },
     {

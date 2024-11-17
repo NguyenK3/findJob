@@ -207,7 +207,7 @@ const JobModal: React.FC<JobModalProps> = ({
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
-                        status: e.target.checked,
+                        isActive: e.target.checked,
                       }))
                     }
                     color="primary"
