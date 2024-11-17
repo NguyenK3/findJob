@@ -7,7 +7,7 @@ import { IUsers } from 'src/users/interface/users.interface';
 
 @Controller('jobs')
 export class JobsController {
-  constructor(private readonly jobsService: JobsService) {}
+  constructor(private readonly jobsService: JobsService) { }
 
   @Post()
   @ResponseMessage('Create A New Jobs')
@@ -25,8 +25,8 @@ export class JobsController {
   @Public()
   @ResponseMessage('Fetch A Job With Paginate')
   async findAll(
-    @Query('current') currentPage: string, 
-    @Query('pageSize') limit: string, 
+    @Query('current') currentPage: string,
+    @Query('pageSize') limit: string,
     @Query() qs: string) {
     return await this.jobsService.findAll(+currentPage, +limit, qs);
   }

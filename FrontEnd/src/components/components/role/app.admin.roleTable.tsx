@@ -1,58 +1,95 @@
-// pages/roles.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
-  Grid,
   TextField,
   Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  MenuItem,
   IconButton,
   Pagination,
   Select,
+  MenuItem,
 } from "@mui/material";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import AddIcon from "@mui/icons-material/Add";
 import SettingsIcon from "@mui/icons-material/Settings";
+import { useSession } from "next-auth/react";
+import RoleModal from "./app.admin.roleModal";
 
 const RolesTable = () => {
   // State variables
   const [searchName, setSearchName] = useState("");
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const roles = [
-    {
-      id: "671b04159fc04e766bcfa4e6",
-      name: "NORMAL_USER",
-      status: "ACTIVE",
-      createdAt: "25-10-2024 09:36:05",
-      updatedAt: "25-10-2024 09:36:05",
-    },
-    {
-      id: "671b04159fc04e766bcfa4e5",
-      name: "SUPER_ADMIN",
-      status: "ACTIVE",
-      createdAt: "25-10-2024 09:36:05",
-      updatedAt: "25-10-2024 09:36:05",
-    },
-  ];
+  const [roles, setRoles] = useState<IRole[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const { data: session } = useSession();
+  const access_token = session?.access_token;
+
+  // State for RoleModal
+  const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+
+  const fetchRoles = async () => {
+    try {
+      const response = await fetch(`http://localhost:8000/api/v1/roles/`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${access_token}`,
+        },
+      });
+      const data = await response.json();
+      setRoles(data.data.result);
+      setTotalCount(data.data.meta.total);
+    } catch (error) {
+      console.error("Failed to fetch roles:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchRoles();
+  }, []);
 
   const handleSearch = () => {
     console.log("Searching for:", searchName);
   };
 
   const handleAddPermission = () => {
-    console.log("Opening add permission modal");
+    setIsRoleModalOpen(true); // Open RoleModal
   };
+
+  const handleCloseRoleModal = () => {
+    setIsRoleModalOpen(false); // Close RoleModal
+  };
+
+  const handleSaveRole = (newRole: IRole) => {
+    setRoles((prevRoles) => [...prevRoles, newRole]);
+  };
+
+  const columns: GridColDef[] = [
+    { field: '_id', headerName: 'Id', flex: 1 },
+    { field: 'name', headerName: 'Name', flex: 2 },
+    { field: 'isActive', headerName: 'Trạng thái', flex: 1 },
+    { field: 'createdAt', headerName: 'CreatedAt', flex: 2 },
+    { field: 'updatedAt', headerName: 'UpdatedAt', flex: 2 },
+    {
+      field: 'actions',
+      headerName: 'Actions',
+      flex: 1,
+      renderCell: (params) => (
+        <>
+          <IconButton color="primary">
+            <EditIcon />
+          </IconButton>
+          <IconButton color="error">
+            <DeleteIcon />
+          </IconButton>
+        </>
+      ),
+    },
+  ];
 
   return (
     <Box p={3}>
@@ -123,53 +160,21 @@ const RolesTable = () => {
           </Box>
         </Box>
 
-        {/* Table */}
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Id</TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell>Trạng thái</TableCell>
-                <TableCell>CreatedAt</TableCell>
-                <TableCell>UpdatedAt</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {roles.map((role) => (
-                <TableRow key={role.id}>
-                  <TableCell>{role.id}</TableCell>
-                  <TableCell>{role.name}</TableCell>
-                  <TableCell>
-                    <Box
-                      sx={{
-                        display: "inline-block",
-                        padding: "2px 8px",
-                        backgroundColor: "#e0ffd8",
-                        borderRadius: "4px",
-                        color: "#4caf50",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {role.status}
-                    </Box>
-                  </TableCell>
-                  <TableCell>{role.createdAt}</TableCell>
-                  <TableCell>{role.updatedAt}</TableCell>
-                  <TableCell>
-                    <IconButton color="primary">
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton color="error">
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        {/* DataGrid */}
+        <Box style={{ height: 400, width: '100%' }}>
+          <DataGrid
+            rows={roles}
+            columns={columns}
+            paginationModel={{ page: page - 1, pageSize: rowsPerPage }}
+            pagination
+            getRowId={(row) => row._id}
+            onPaginationModelChange={(model) => {
+              setPage(model.page + 1);
+              setRowsPerPage(model.pageSize);
+            }}
+            pageSizeOptions={[10, 25, 50]}
+          />
+        </Box>
 
         {/* Pagination */}
         <Box
@@ -179,16 +184,16 @@ const RolesTable = () => {
           mt={2}
         >
           <Typography>
-            {`1-2 trên ${roles.length} rows`}
+            {`${(page - 1) * rowsPerPage + 1}-${Math.min(page * rowsPerPage, totalCount)} trên ${totalCount} rows`}
           </Typography>
           <Pagination
-            count={Math.ceil(roles.length / rowsPerPage)}
+            count={Math.ceil(totalCount / rowsPerPage)}
             page={page}
             onChange={(e, value) => setPage(value)}
           />
           <Select
             value={rowsPerPage}
-            onChange={(e) => setRowsPerPage(e.target.value)}
+            onChange={(e) => setRowsPerPage(e.target.value as number)}
             size="small"
           >
             <MenuItem value={10}>10 / trang</MenuItem>
@@ -197,6 +202,9 @@ const RolesTable = () => {
           </Select>
         </Box>
       </Box>
+
+      {/* RoleModal */}
+      <RoleModal open={isRoleModalOpen} onClose={handleCloseRoleModal} onSave={handleSaveRole} />
     </Box>
   );
 }

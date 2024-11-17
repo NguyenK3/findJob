@@ -15,7 +15,7 @@ const statuses = ["PENDING", "REVIEWING", "APPROVED", "REJECTED"];
 const ResumeTable = () => {
   const [status, setStatus] = useState('');
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const [rows, setRows] = useState<IResume[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [companies, setCompanies] = useState<ICompany[]>([]);
@@ -47,17 +47,26 @@ const ResumeTable = () => {
 
   const handleChangeStatus = (event: React.ChangeEvent<{ value: unknown }>) => {
     setStatus(event.target.value as string);
-    fetchResumes(event.target.value as string);
+    setPage(0); // Reset page to 0 when status changes
+    fetchResumes(0, rowsPerPage);
   };
 
-  const handleChangePage = (newPage: number) => {
-    setPage(newPage);
-  };
+  // const handleChangePage = (newPage: number) => {
+  //   setPage(newPage);
+  //   console.log('Page:', newPage);
+  //   fetchResumes(newPage, rowsPerPage);
+  // };
 
-  const handleChangeRowsPerPage = async (newPageSize: number) => {
-    setRowsPerPage(newPageSize);
-    setPage(0);
-    await fetchJobs()
+  // const handleChangeRowsPerPage = (newPageSize: number) => {
+  //   setRowsPerPage(newPageSize);
+  //   setPage(0); // Reset page to 0 when rows per page changes
+  //   fetchResumes(0, newPageSize);
+  // };
+
+  const handlePaginationChange = (paginationModel: GridPaginationModel) => {
+    setPage(paginationModel.page);
+    setRowsPerPage(paginationModel.pageSize);
+    fetchResumes(paginationModel.page, paginationModel.pageSize); // Gọi lại fetchPermissions khi thay đổi trang hoặc kích thước trang
   };
 
   const fetchCompanies = async () => {
@@ -75,23 +84,29 @@ const ResumeTable = () => {
     }
   };
 
-  const fetchResumes = async (status?: string) => {
+  const fetchResumes = async (page: number, rowsPerPage: number) => {
     try {
-      const query = new URLSearchParams({
-        current: (page + 1).toString(),
-        pageSize: rowsPerPage.toString(),
-        ...(status && { status: `/${status}/i` }),
-      });
-
-      const response = await fetch(`http://localhost:8000/api/v1/resumes/?${query.toString()}`, {
+      const response = await fetch(`http://localhost:8000/api/v1/resumes/?current=${page + 1
+        }&pageSize=${rowsPerPage}`, {
         headers: {
           Authorization: `Bearer ${access_token}`,
           "Content-Type": "application/json",
         },
       });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+
       const data = await response.json();
-      setRows(data.data.result);
-      setTotalCount(data.totalCount);
+      // console.log('API Response:', data); // Log the response for debugging
+
+      if (data.data && data.data.result) {
+        setRows(data.data.result);
+        setTotalCount(data.data.meta.total);
+      } else {
+        throw new Error('Invalid data format');
+      }
     } catch (error) {
       console.error('Failed to fetch data:', error);
     }
@@ -100,7 +115,7 @@ const ResumeTable = () => {
   const fetchData = async () => {
     await fetchCompanies();
     await fetchJobs();
-    await fetchResumes(status);
+    await fetchResumes(page, rowsPerPage);
   }
 
   useEffect(() => {
@@ -125,13 +140,19 @@ const ResumeTable = () => {
     setSelectedResume(resume);
     setIsModalOpen(true);
   };
-  
+
   // Define responsive columns
   const columns: GridColDef[] = [
+    // {
+    //   field: '_id',
+    //   headerName: 'Id',
+    //   flex: isSmallScreen ? 0.5 : isMediumScreen ? 1 : 1.5,
+
+    // },
     {
-      field: '_id',
-      headerName: 'Id',
-      flex: isSmallScreen ? 0.5 : isMediumScreen ? 1 : 1.5,
+      field: 'email',
+      headerName: 'Email',
+      flex: isSmallScreen ? 1 : 1.5,
       renderCell: (params) => (
         <Button onClick={() => handleResumeClick(params.row)}>
           {params.value}
@@ -139,15 +160,9 @@ const ResumeTable = () => {
       ),
     },
     {
-      field: 'email',
-      headerName: 'Email',
-      flex: isSmallScreen ? 1 : 1.5,
-      renderCell: (params) => params.value,
-    },
-    {
       field: 'companyId',
       headerName: 'Company',
-      flex: isSmallScreen ? 1 : isMediumScreen ? 1.5 : 2,
+      flex: isSmallScreen ? 1 : isMediumScreen ? 1 : 1.5,
       renderCell: (params) => companyMap[params.value] || params.value,
     },
     {
@@ -176,7 +191,7 @@ const ResumeTable = () => {
   ];
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 5 }}>
+    <Container maxWidth="xl" sx={{ mt: 5 }}>
       {/* Filter Section */}
       <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
         <Box display="flex" alignItems="center" gap={2}>
@@ -204,14 +219,11 @@ const ResumeTable = () => {
         <DataGrid
           rows={rows}
           columns={columns}
-          paginationModel={{ page, pageSize: rowsPerPage }}
-          pageSizeOptions={[10, 25, 50]}
+          paginationModel={{ page: page, pageSize: rowsPerPage }}
+          pageSizeOptions={[5, 10, 25]}
           rowCount={totalCount}
           paginationMode="server"
-          onPaginationModelChange={(model) => {
-            handleChangePage(model.page);
-            handleChangeRowsPerPage(model.pageSize);
-          }}
+          onPaginationModelChange={handlePaginationChange}
           getRowId={(row) => row._id}
           slots={{ toolbar: GridToolbar }}
           disableRowSelectionOnClick

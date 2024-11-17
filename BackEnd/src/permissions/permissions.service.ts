@@ -35,11 +35,18 @@ export class PermissionsService {
   }
 
   async findAll(currentPage: number, limit: number, qs: string) {
-    const { filter, projection, population } = aqp(qs);
+    console.log('currentPage:', currentPage);
+    console.log('limit:', limit);
+    console.log('qs:', qs);
 
-    //Delete original start
-    delete filter.current
-    delete filter.pageSize
+    const { filter, projection, population } = aqp(qs);
+    console.log('filter:', filter);
+    console.log('projection:', projection);
+    console.log('population:', population);
+
+    // Delete original start
+    delete filter.current;
+    delete filter.pageSize;
 
     let { sort } = aqp(qs);
     let offset = (+currentPage - 1) * (+limit);
@@ -48,24 +55,26 @@ export class PermissionsService {
     const totalPages = Math.ceil(totalItems / defaultLimit);
     if (isEmpty(sort)) {
       // @ts-ignore: Unreachable code error
-      sort = "-updatedAt"
+      sort = "-updatedAt";
     }
     const result = await this.permissionModel.find(filter)
       .skip(offset)
       .limit(defaultLimit)
       .sort(sort as any)
       .populate(population)
-      .select(projection as any)
       .exec();
+
+    console.log('result:', result);
+
     return {
       meta: {
-        current: currentPage, //trang hiện tại
-        pageSize: limit, //số lượng bản ghi đã lấy
-        pages: totalPages, //tổng số trang với điều kiện query
+        current: currentPage, // trang hiện tại
+        pageSize: limit, // số lượng bản ghi đã lấy
+        pages: totalPages, // tổng số trang với điều kiện query
         total: totalItems // tổng số phần tử (số bản ghi)
       },
-      result //kết quả query
-    }
+      result // kết quả query
+    };
   }
 
   async findOne(_id: string) {

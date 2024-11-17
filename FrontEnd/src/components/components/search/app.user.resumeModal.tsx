@@ -28,16 +28,17 @@ const ResumeModal: React.FC<ResumeModalProps> = ({ open, onClose, jobId, jobName
   const uploadFile = async (file: File) => {
     const formData = new FormData();
     formData.append('fileUpload', file); // Use 'fileUpload' as the parameter name
-  
+
     try {
       const response = await fetch('http://localhost:8000/api/v1/files/upload', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${session?.access_token}`,
+          "folder_type": "resume"
         },
         body: formData,
       });
-  
+
       if (response.ok) {
         const data = await response.json();
         return data.data.fileName; // Assuming the API returns the uploaded file URL
@@ -55,15 +56,15 @@ const ResumeModal: React.FC<ResumeModalProps> = ({ open, onClose, jobId, jobName
       alert('Please upload your CV.');
       return;
     }
-  
+
     try {
       const fileUrl = await uploadFile(file);
-  
+
       const formData = new URLSearchParams();
       formData.append('url', fileUrl);
       formData.append('companyId', companyId);
       formData.append('jobId', jobId);
-  
+
       const response = await fetch('http://localhost:8000/api/v1/resumes/', {
         method: 'POST',
         headers: {
@@ -72,7 +73,7 @@ const ResumeModal: React.FC<ResumeModalProps> = ({ open, onClose, jobId, jobName
         },
         body: formData.toString(),
       });
-  
+
       if (response.ok) {
         alert('Application submitted successfully!');
         onClose();
@@ -89,7 +90,7 @@ const ResumeModal: React.FC<ResumeModalProps> = ({ open, onClose, jobId, jobName
     <Dialog open={open} onClose={onClose} aria-labelledby="resume-modal-title" maxWidth="sm" fullWidth>
       <DialogTitle id="resume-modal-title">{jobName}</DialogTitle>
       <DialogContent dividers>
-        <Box 
+        <Box
           sx={{
             padding: 2,
             backgroundColor: '#fff',

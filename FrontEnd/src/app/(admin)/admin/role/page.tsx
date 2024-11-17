@@ -1,7 +1,9 @@
+import RoleAdmin from "@/components/admin/role";
+
 const RolePageAdmin = () => {
   return (
     <>
-        <h1>Role Page Admin</h1>
+      <RoleAdmin />
     </>
   )
 }

@@ -9,10 +9,11 @@ import {
   Typography,
 } from "@mui/material";
 import Grid from "@mui/material/Grid"; // Stable Grid component
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import AddIcon from "@mui/icons-material/Add";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css"; // import the CSS for the Quill editor
+import ReactQuill, { Quill } from "react-quill";
+import "react-quill/dist/quill.snow.css"; // imporit the CSS for the Quill editor
+import { useSession } from "next-auth/react";
 
 interface CompanyModalProps {
   open: boolean;
@@ -38,6 +39,65 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
     description: "",
     logo: null,
   });
+
+  const { data: session } = useSession();
+  const access_token = session?.access_token;
+
+  const quillRef = useRef<ReactQuill | null>(null);
+
+  const handleImageUpload = () => {
+    const input = document.createElement("input");
+    input.setAttribute("type", "file");
+    input.setAttribute("accept", "image/*");
+    input.click();
+
+    input.onchange = async () => {
+      const file = input.files ? input.files[0] : null;
+      if (file) {
+        const formData = new FormData();
+        formData.append("fileUpload", file);
+
+        const response = await fetch("http://localhost:8000/api/v1/files/upload", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+            "folder_type": "company"
+          },
+          body: formData,
+        });
+
+        const data = await response.json();
+        const quill = quillRef.current?.getEditor();
+        const range = quill?.getSelection();
+        console.log(range)
+        if (quill) {
+          const range = quill.getSelection();
+          console.log(range)
+          if (range) {
+            const encodedFileName = encodeURIComponent(data.data.fileName);
+            const imageUrl = `http://localhost:8000/images/company/${encodedFileName}`;
+            quill.insertEmbed(range.index, "image", imageUrl);
+          }
+        }
+      }
+    };
+  };
+
+  const modules = useMemo(() => ({
+    toolbar: {
+      container: [
+        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+        ['bold', 'italic', 'underline', "strike"],
+        [{ 'list': 'ordered' }, { 'list': 'bullet' },
+        { 'indent': '-1' }, { 'indent': '+1' }],
+        ['image', "link",],
+        [{ 'color': ['#000000', '#e60000', '#ff9900', '#ffff00', '#008a00', '#0066cc', '#9933ff', '#ffffff', '#facccc', '#ffebcc', '#ffffcc', '#cce8cc', '#cce0f5', '#ebd6ff', '#bbbbbb', '#f06666', '#ffc266', '#ffff66', '#66b966', '#66a3e0', '#c285ff', '#888888', '#a10000', '#b26b00', '#b2b200', '#006100', '#0047b2', '#6b24b2', '#444444', '#5c0000', '#663d00', '#666600', '#003700', '#002966', '#3d1466'] }]
+      ],
+      handlers: {
+        image: handleImageUpload
+      }
+    },
+  }), [])
 
   useEffect(() => {
     if (isEditMode && currentCompany) {
@@ -222,7 +282,13 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
                   },
                 }}
               >
-                <ReactQuill theme="snow" value={value} onChange={setValue} />
+                <ReactQuill
+                  theme="snow"
+                  value={value}
+                  ref={quillRef}
+                  onChange={setValue}
+                  modules={modules}
+                />
               </Box>
             </Grid>
 

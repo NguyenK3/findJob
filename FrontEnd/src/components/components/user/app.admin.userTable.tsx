@@ -59,8 +59,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
   ) => {
     try {
       const response = await fetch(
-        `http://localhost:8000/api/v1/users/?current=${
-          page + 1
+        `http://localhost:8000/api/v1/users/?current=${page + 1
         }&pageSize=${pageSize}&name=/${searchName}/i`,
         {
           headers: {
@@ -334,7 +333,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
         />
       ),
     },
-    { field: "_id", headerName: "Id", flex: 1 },
+    // { field: "_id", headerName: "Id", flex: 1 },
     { field: "name", headerName: "Name", flex: 2 },
     { field: "email", headerName: "Email", flex: 2 },
     {
