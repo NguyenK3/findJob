@@ -3,7 +3,7 @@ import { Box, Button, Container, Grid, IconButton, MenuItem, TextField, Typograp
 import { DataGrid, GridColDef, GridToolbar, GridPaginationModel } from "@mui/x-data-grid";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
-import PermissionModal from "./app.admin.PermissionModal";
+import PermissionModal from "./app.admin.permissionModal";
 
 const PermissionTable = () => {
   const [permissions, setPermissions] = useState<IPermission[]>([]);
@@ -91,17 +91,17 @@ const PermissionTable = () => {
   };
 
   const columns: GridColDef[] = [
-    { field: '_id', headerName: 'Id', flex: 1 },
+    // { field: '_id', headerName: 'Id', flex: 1 },
     { field: 'name', headerName: 'Name', flex: 1 },
     { field: 'apiPath', headerName: 'API', flex: 1 },
-    {
-      field: 'method',
-      headerName: 'Method',
-      flex: 1,
-      renderCell: (params) => (
-        <Typography color={getColor(params.value)}>{params.value}</Typography>
-      ),
-    },
+    // {
+    //   field: 'method',
+    //   headerName: 'Method',
+    //   flex: 1,
+    //   renderCell: (params) => (
+    //     <Typography color={getColor(params.value)}>{params.value}</Typography>
+    //   ),
+    // },
     { field: 'module', headerName: 'Module', flex: 1 },
     {
       field: 'createdAt', headerName: 'CreatedAt', flex: 1,

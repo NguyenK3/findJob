@@ -35,14 +35,14 @@ export class PermissionsService {
   }
 
   async findAll(currentPage: number, limit: number, qs: string) {
-    console.log('currentPage:', currentPage);
-    console.log('limit:', limit);
-    console.log('qs:', qs);
+    // console.log('currentPage:', currentPage);
+    // console.log('limit:', limit);
+    // console.log('qs:', qs);
 
     const { filter, projection, population } = aqp(qs);
-    console.log('filter:', filter);
-    console.log('projection:', projection);
-    console.log('population:', population);
+    // console.log('filter:', filter);
+    // console.log('projection:', projection);
+    // console.log('population:', population);
 
     // Delete original start
     delete filter.current;
@@ -64,7 +64,7 @@ export class PermissionsService {
       .populate(population)
       .exec();
 
-    console.log('result:', result);
+    // console.log('result:', result);
 
     return {
       meta: {
