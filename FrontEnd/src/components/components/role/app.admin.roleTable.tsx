@@ -5,11 +5,10 @@ import {
   TextField,
   Typography,
   IconButton,
-  Pagination,
   Select,
   MenuItem,
 } from "@mui/material";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { DataGrid, GridColDef, GridPaginationModel } from "@mui/x-data-grid";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -31,9 +30,9 @@ const RolesTable = () => {
   // State for RoleModal
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
 
-  const fetchRoles = async () => {
+  const fetchRoles = async (current: number, pageSize: number) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/roles/`, {
+      const response = await fetch(`http://localhost:8000/api/v1/roles/?current=${current}&pageSize=${pageSize}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -49,8 +48,8 @@ const RolesTable = () => {
   };
 
   useEffect(() => {
-    fetchRoles();
-  }, []);
+    fetchRoles(page, rowsPerPage);
+  }, [page, rowsPerPage]);
 
   const handleSearch = () => {
     console.log("Searching for:", searchName);
@@ -69,10 +68,10 @@ const RolesTable = () => {
   };
 
   const columns: GridColDef[] = [
-    { field: '_id', headerName: 'Id', flex: 1 },
+    // { field: '_id', headerName: 'Id', flex: 1 },
     { field: 'name', headerName: 'Name', flex: 2 },
     { field: 'isActive', headerName: 'Trạng thái', flex: 1 },
-    { field: 'createdAt', headerName: 'CreatedAt', flex: 2 },
+    { field: 'createdAt', headerName: 'CreatedAt', flex: 1 },
     { field: 'updatedAt', headerName: 'UpdatedAt', flex: 2 },
     {
       field: 'actions',
@@ -167,39 +166,15 @@ const RolesTable = () => {
             columns={columns}
             paginationModel={{ page: page - 1, pageSize: rowsPerPage }}
             pagination
+            paginationMode="server"
+            rowCount={totalCount}
             getRowId={(row) => row._id}
-            onPaginationModelChange={(model) => {
+            onPaginationModelChange={(model: GridPaginationModel) => {
               setPage(model.page + 1);
               setRowsPerPage(model.pageSize);
             }}
             pageSizeOptions={[10, 25, 50]}
           />
-        </Box>
-
-        {/* Pagination */}
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-          mt={2}
-        >
-          <Typography>
-            {`${(page - 1) * rowsPerPage + 1}-${Math.min(page * rowsPerPage, totalCount)} trên ${totalCount} rows`}
-          </Typography>
-          <Pagination
-            count={Math.ceil(totalCount / rowsPerPage)}
-            page={page}
-            onChange={(e, value) => setPage(value)}
-          />
-          <Select
-            value={rowsPerPage}
-            onChange={(e) => setRowsPerPage(e.target.value as number)}
-            size="small"
-          >
-            <MenuItem value={10}>10 / trang</MenuItem>
-            <MenuItem value={25}>25 / trang</MenuItem>
-            <MenuItem value={50}>50 / trang</MenuItem>
-          </Select>
         </Box>
       </Box>
 

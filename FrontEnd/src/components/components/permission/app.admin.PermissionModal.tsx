@@ -103,125 +103,20 @@ const PermissionModal = ({ open, handleClose, fetchPermissions, currentPermissio
     };
 
     return (
-        // <Modal
-        //     open={open}
-        //     onClose={handleClose}
-        //     aria-labelledby="modal-title"
-        //     aria-describedby="modal-description"
-        // >
-        //     <Box sx={style}>
-        //         <Box display="flex" justifyContent="space-between" alignItems="center">
-        //             <Typography variant="h6" id="modal-title">{currentPermission ? "Cập nhật Permission" : "Tạo mới Permission"}</Typography>
-        //             <IconButton onClick={handleClose}>
-        //                 <CloseIcon />
-        //             </IconButton>
-        //         </Box>
-        //         <Box mt={2} display="grid" gridTemplateColumns="1fr 1fr" gap={2}>
-        //             <TextField
-        //                 label="Tên Permission"
-        //                 name="name"
-        //                 value={formData.name}
-        //                 onChange={handleChange}
-        //                 fullWidth
-        //                 required
-        //                 placeholder="Nhập name"
-        //             />
-        //             <TextField
-        //                 label="API Path"
-        //                 name="apiPath"
-        //                 value={formData.apiPath}
-        //                 onChange={handleChange}
-        //                 fullWidth
-        //                 required
-        //                 placeholder="Nhập path"
-        //             />
-        //             <TextField
-        //                 select
-        //                 label="Method"
-        //                 name="method"
-        //                 value={formData.method}
-        //                 onChange={handleChange}
-        //                 fullWidth
-        //                 required
-        //                 placeholder="Please select a method"
-        //             >
-        //                 {methods.map((method) => (
-        //                     <MenuItem key={method} value={method}>
-        //                         {method}
-        //                     </MenuItem>
-        //                 ))}
-        //             </TextField>
-        //             <TextField
-        //                 label="Thuộc Module"
-        //                 name="module"
-        //                 value={formData.module}
-        //                 onChange={handleChange}
-        //                 fullWidth
-        //                 required
-        //                 placeholder="Please select a module"
-        //             />
-        //         </Box>
-        //         <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
-        //             <Button onClick={handleClose} variant="outlined">Hủy</Button>
-        //             <Button onClick={handleSubmit} variant="contained" color="primary">{currentPermission ? "Cập nhật" : "Tạo mới"}</Button>
-        //         </Box>
-        //     </Box>
-        // </Modal>
         <Modal
             open={open}
             onClose={handleClose}
             aria-labelledby="modal-title"
             aria-describedby="modal-description"
         >
-            <Box
-                sx={{
-                    ...style,
-                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
-                    borderRadius: 2,
-                    padding: 3,
-                    transition: 'transform 0.3s ease-in-out',
-                    transform: open ? 'scale(1)' : 'scale(0.9)',
-                }}
-            >
-                <Box
-                    display="flex"
-                    justifyContent="space-between"
-                    alignItems="center"
-                    borderBottom="1px solid #ddd"
-                    paddingBottom={1}
-                >
-                    <Typography
-                        variant="h6"
-                        id="modal-title"
-                        sx={{
-                            fontWeight: 600,
-                            color: '#333',
-                        }}
-                    >
-                        {currentPermission ? "Cập nhật Permission" : "Tạo mới Permission"}
-                    </Typography>
-                    <IconButton
-                        onClick={handleClose}
-                        sx={{
-                            '&:hover': {
-                                backgroundColor: 'rgba(255, 0, 0, 0.1)',
-                            },
-                        }}
-                    >
+            <Box sx={style}>
+                <Box display="flex" justifyContent="space-between" alignItems="center">
+                    <Typography variant="h6" id="modal-title">{currentPermission ? "Cập nhật Permission" : "Tạo mới Permission"}</Typography>
+                    <IconButton onClick={handleClose}>
                         <CloseIcon />
                     </IconButton>
                 </Box>
-                <Box
-                    mt={3}
-                    display="grid"
-                    gridTemplateColumns="1fr 1fr"
-                    gap={3}
-                    sx={{
-                        '@media (max-width: 600px)': {
-                            gridTemplateColumns: '1fr',
-                        },
-                    }}
-                >
+                <Box mt={2} display="grid" gridTemplateColumns="1fr 1fr" gap={2}>
                     <TextField
                         label="Tên Permission"
                         name="name"
@@ -251,15 +146,7 @@ const PermissionModal = ({ open, handleClose, fetchPermissions, currentPermissio
                         placeholder="Please select a method"
                     >
                         {methods.map((method) => (
-                            <MenuItem
-                                key={method}
-                                value={method}
-                                sx={{
-                                    '&:hover': {
-                                        backgroundColor: 'rgba(0, 0, 255, 0.1)',
-                                    },
-                                }}
-                            >
+                            <MenuItem key={method} value={method}>
                                 {method}
                             </MenuItem>
                         ))}
@@ -274,43 +161,9 @@ const PermissionModal = ({ open, handleClose, fetchPermissions, currentPermissio
                         placeholder="Please select a module"
                     />
                 </Box>
-                <Box
-                    mt={4}
-                    display="flex"
-                    justifyContent="flex-end"
-                    gap={2}
-                >
-                    <Button
-                        onClick={handleClose}
-                        variant="outlined"
-                        sx={{
-                            paddingX: 3,
-                            paddingY: 1,
-                            transition: 'all 0.3s',
-                            '&:hover': {
-                                backgroundColor: '#f5f5f5',
-                                borderColor: '#ddd',
-                            },
-                        }}
-                    >
-                        Hủy
-                    </Button>
-                    <Button
-                        onClick={handleSubmit}
-                        variant="contained"
-                        color="primary"
-                        sx={{
-                            paddingX: 3,
-                            paddingY: 1,
-                            boxShadow: '0 2px 10px rgba(0, 123, 255, 0.4)',
-                            transition: 'all 0.3s',
-                            '&:hover': {
-                                backgroundColor: '#004085',
-                            },
-                        }}
-                    >
-                        {currentPermission ? "Cập nhật" : "Tạo mới"}
-                    </Button>
+                <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
+                    <Button onClick={handleClose} variant="outlined">Hủy</Button>
+                    <Button onClick={handleSubmit} variant="contained" color="primary">{currentPermission ? "Cập nhật" : "Tạo mới"}</Button>
                 </Box>
             </Box>
         </Modal>
