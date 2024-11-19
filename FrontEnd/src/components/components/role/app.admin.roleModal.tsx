@@ -1,4 +1,4 @@
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     Dialog,
     DialogTitle,
@@ -13,9 +13,6 @@ import {
     Accordion,
     AccordionSummary,
     AccordionDetails,
-    Grid,
-    IconButton,
-    Checkbox,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useSession } from "next-auth/react";
@@ -24,10 +21,14 @@ interface RoleDialogProps {
     open: boolean;
     onClose: () => void;
     onSave: (newRole: IRole) => void;
-
+    fetchRoles: (current: number, pageSize: number) => Promise<void>;
+    current: number;
+    pageSize: number;
+    role?: IRole | null;
+    isEditMode: boolean;
 }
 
-const RoleDialog: React.FC<RoleDialogProps> = ({ open, onClose }) => {
+const RoleDialog: React.FC<RoleDialogProps> = ({ open, onClose, fetchRoles, current, pageSize, role: initialRole, isEditMode }) => {
     const [role, setRole] = useState<IRole>({
         name: "",
         description: "",
@@ -43,6 +44,16 @@ const RoleDialog: React.FC<RoleDialogProps> = ({ open, onClose }) => {
     const [allSwitchesOn, setAllSwitchesOn] = useState<{ [key: string]: boolean }>({});
     const { data: session } = useSession();
     const access_token = session?.access_token;
+
+    useEffect(() => {
+        if (initialRole) {
+            setRole(initialRole);
+            const permissions = initialRole.permissions
+                .map((perm: IPermission | string) => typeof perm === 'string' ? perm : perm._id)
+                .filter((perm): perm is string => perm !== undefined);
+            setSelectedPermissions(permissions);
+        }
+    }, [initialRole]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -63,7 +74,6 @@ const RoleDialog: React.FC<RoleDialogProps> = ({ open, onClose }) => {
                 },
             });
             const data = await response.json();
-            // console.log(data)
             setPermission(data.data.result);
             setTotalCount(data.data.meta.total);
             return data.data;
@@ -85,26 +95,21 @@ const RoleDialog: React.FC<RoleDialogProps> = ({ open, onClose }) => {
                         }
                     });
                     data = Array.from(new Set(data));
-                    console.log("data", data);
                     setFillPermission(data);
                     if (data.length > 0) {
                         const groupedData = data.reduce((acc: { [key: string]: IPermission[] }, item) => {
-                            // console.log("data", data);
                             if (!acc[item]) {
                                 acc[item] = [];
                             }
                             const key = item;
-                            // console.log("key", key);
                             res.result.map((itemModule: IPermission) => {
                                 if (key === itemModule.module) {
                                     acc[key].push(itemModule);
                                 }
                             });
-                            // console.log("acc", acc);
                             return acc;
                         }, {});
                         setGroupedData(groupedData);
-                        // console.log(groupedData);
                     }
                 }
             }
@@ -121,7 +126,6 @@ const RoleDialog: React.FC<RoleDialogProps> = ({ open, onClose }) => {
                 updatedSelected = [...prevSelected, permId];
             }
 
-            // Kiểm tra xem có ít nhất một switch trong AccordionDetails được bật hay không
             const anyOn = groupedData[permission].some((perm) => perm._id && updatedSelected.includes(perm._id));
             setAllSwitchesOn((prev) => ({
                 ...prev,
@@ -133,8 +137,13 @@ const RoleDialog: React.FC<RoleDialogProps> = ({ open, onClose }) => {
     };
 
     useEffect(() => {
-        console.log("selectedPermissions", selectedPermissions);
-    }, [selectedPermissions]);
+        const updatedSwitches = Object.keys(groupedData).reduce((acc, key) => {
+            const anyOn = groupedData[key].some((perm) => perm._id && selectedPermissions.includes(perm._id));
+            acc[key] = anyOn;
+            return acc;
+        }, {} as { [key: string]: boolean });
+        setAllSwitchesOn(updatedSwitches);
+    }, [groupedData, selectedPermissions]);
 
     const handleFetchRoleData = (permission: string) => {
         if (permission) {
@@ -160,9 +169,52 @@ const RoleDialog: React.FC<RoleDialogProps> = ({ open, onClose }) => {
         }
     };
 
+    const resetForm = () => {
+        setRole({
+            name: "",
+            description: "",
+            isActive: true,
+            permissions: [],
+        });
+        setSelectedPermissions([]);
+        setAllSwitchesOn({});
+    };
+
+    const handleSubmit = async () => {
+        const newRole = {
+            name: role.name,
+            description: role.description,
+            isActive: role.isActive,
+            permissions: selectedPermissions,
+        };
+
+        try {
+            const response = await fetch(`http://localhost:8000/api/v1/roles${isEditMode ? `/${role._id}` : ""}`, {
+                method: isEditMode ? "PATCH" : "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${access_token}`,
+                },
+                body: JSON.stringify(newRole),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to ${isEditMode ? "update" : "create"} role`);
+            }
+
+            const data = await response.json();
+            onClose(); // Close the dialog after successful creation
+            fetchRoles(current, pageSize); // Fetch lại data cho roleTable
+            resetForm(); // Reset form after successful creation or update
+
+        } catch (error) {
+            console.error(`Error ${isEditMode ? "updating" : "creating"} role:`, error);
+        }
+    };
+
     return (
         <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-            <DialogTitle>Tạo mới Role</DialogTitle>
+            <DialogTitle>{isEditMode ? "Cập nhật Role" : "Tạo mới Role"}</DialogTitle>
             <DialogContent dividers>
                 {/* Role Name and Status */}
                 <Box display="flex" alignItems="center" gap={2} mb={2}>
@@ -283,9 +335,11 @@ const RoleDialog: React.FC<RoleDialogProps> = ({ open, onClose }) => {
                 <Button onClick={onClose} color="secondary">
                     Cancel
                 </Button>
-                <Button variant="contained" color="primary">
-                    Save
-                </Button>
+                {isEditMode &&
+                    <Button variant="contained" color="primary" onClick={handleSubmit}>
+                        Save
+                    </Button>
+                }
             </DialogActions>
         </Dialog>
     );

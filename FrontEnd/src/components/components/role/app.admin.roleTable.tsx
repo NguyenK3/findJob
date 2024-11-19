@@ -15,7 +15,7 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import AddIcon from "@mui/icons-material/Add";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { useSession } from "next-auth/react";
-import RoleModal from "./app.admin.roleModal";
+import RoleDialog from "./app.admin.roleModal";
 
 const RolesTable = () => {
   // State variables
@@ -29,6 +29,8 @@ const RolesTable = () => {
 
   // State for RoleModal
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+  const [currentRole, setCurrentRole] = useState<IRole | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   const fetchRoles = async (current: number, pageSize: number) => {
     try {
@@ -56,7 +58,38 @@ const RolesTable = () => {
   };
 
   const handleAddPermission = () => {
+    setIsEditMode(false);
+    setCurrentRole(null);
     setIsRoleModalOpen(true); // Open RoleModal
+  };
+
+  const handleEditRole = async (role: IRole) => {
+    setIsEditMode(true);
+    setCurrentRole(role);
+    setIsRoleModalOpen(true); // Open RoleModal
+  };
+
+  const handleDeleteRole = async (role: IRole) => {
+    try {
+      const response = await fetch(`http://localhost:8000/api/v1/roles/${role._id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${access_token}`,
+        },
+      });
+
+      console.log('response', response);
+
+      if (!response.ok) {
+        throw new Error("Failed to delete role");
+      }
+
+      fetchRoles(page, rowsPerPage); // Fetch lại data cho roleTable
+
+    } catch (error) {
+      console.error("Error deleting role:", error);
+    }
   };
 
   const handleCloseRoleModal = () => {
@@ -64,7 +97,13 @@ const RolesTable = () => {
   };
 
   const handleSaveRole = (newRole: IRole) => {
-    setRoles((prevRoles) => [...prevRoles, newRole]);
+    if (isEditMode) {
+      setRoles((prevRoles) =>
+        prevRoles.map((role) => (role._id === newRole._id ? newRole : role))
+      );
+    } else {
+      setRoles((prevRoles) => [...prevRoles, newRole]);
+    }
   };
 
   const columns: GridColDef[] = [
@@ -79,10 +118,10 @@ const RolesTable = () => {
       flex: 1,
       renderCell: (params) => (
         <>
-          <IconButton color="primary">
+          <IconButton color="primary" onClick={() => handleEditRole(params.row)}>
             <EditIcon />
           </IconButton>
-          <IconButton color="error">
+          <IconButton color="error" onClick={() => handleDeleteRole(params.row)}>
             <DeleteIcon />
           </IconButton>
         </>
@@ -179,7 +218,16 @@ const RolesTable = () => {
       </Box>
 
       {/* RoleModal */}
-      <RoleModal open={isRoleModalOpen} onClose={handleCloseRoleModal} onSave={handleSaveRole} />
+      <RoleDialog
+        open={isRoleModalOpen}
+        onClose={handleCloseRoleModal}
+        onSave={handleSaveRole}
+        fetchRoles={fetchRoles}
+        current={page}
+        pageSize={rowsPerPage}
+        role={currentRole}
+        isEditMode={isEditMode}
+      />
     </Box>
   );
 }
