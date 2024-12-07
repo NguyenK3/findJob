@@ -2,16 +2,61 @@
 import { Box, Button, Checkbox, FormControlLabel, MenuItem, Select, TextField, Typography } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [gender, setGender] = useState('');
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    age: '',
+    address: '',
+  });
+
+  const router = useRouter();
+
   const handleTogglePassword = () => {
     setShowPassword(!showPassword);
   };
 
   const handleGenderChange = (event: any) => {
     setGender(event.target.value);
+  };
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/api/v1/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ...formData, gender }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to register');
+      }
+
+      const result = await response.json();
+      // console.log('Registration successful:', result);
+      if (result) {
+        // console.log('Registration successful:', result);
+        router.push('/auth/signin');
+      }
+      // Handle successful registration (e.g., redirect to login page)
+    } catch (error) {
+      console.error('Error registering:', error);
+    }
   };
 
   return (
@@ -47,7 +92,7 @@ export default function Register() {
       </Typography>
 
       {/* Google Sign Up */}
-      <Button
+      {/* <Button
         variant="outlined"
         startIcon={<GoogleIcon />}
         fullWidth
@@ -63,19 +108,40 @@ export default function Register() {
         }}
       >
         Đăng ký bằng Google
-      </Button>
+      </Button> */}
 
-      <Typography sx={{ textAlign: 'center', mb: 2, fontSize: '0.9rem' }}>HOẶC</Typography>
+      {/* <Typography sx={{ textAlign: 'center', mb: 2, fontSize: '0.9rem' }}>HOẶC</Typography> */}
 
       {/* Registration Fields */}
-      <TextField label="Họ và Tên" variant="outlined" fullWidth required sx={{ mb: 2 }} />
-      <TextField label="Email" variant="outlined" fullWidth required sx={{ mb: 2 }} />
+      <TextField
+        label="Họ và Tên"
+        variant="outlined"
+        fullWidth
+        required
+        name="name"
+        value={formData.name}
+        onChange={handleChange}
+        sx={{ mb: 2 }}
+      />
+      <TextField
+        label="Email"
+        variant="outlined"
+        fullWidth
+        required
+        name="email"
+        value={formData.email}
+        onChange={handleChange}
+        sx={{ mb: 2 }}
+      />
       <TextField
         label="Mật khẩu"
         variant="outlined"
         type={showPassword ? 'text' : 'password'}
         fullWidth
         required
+        name="password"
+        value={formData.password}
+        onChange={handleChange}
         sx={{ mb: 2 }}
         InputProps={{
           endAdornment: (
@@ -85,9 +151,26 @@ export default function Register() {
           ),
         }}
       />
-
-      <TextField label="Tuổi" variant="outlined" fullWidth required sx={{ mb: 2 }} />
-      <TextField label="Địa chỉ" variant="outlined" fullWidth required sx={{ mb: 2 }} />
+      <TextField
+        label="Tuổi"
+        variant="outlined"
+        fullWidth
+        required
+        name="age"
+        value={formData.age}
+        onChange={handleChange}
+        sx={{ mb: 2 }}
+      />
+      <TextField
+        label="Địa chỉ"
+        variant="outlined"
+        fullWidth
+        required
+        name="address"
+        value={formData.address}
+        onChange={handleChange}
+        sx={{ mb: 2 }}
+      />
 
       {/* Gender Selection */}
       <Select
@@ -128,6 +211,7 @@ export default function Register() {
             backgroundColor: '#E64A19',
           },
         }}
+        onClick={handleSubmit}
       >
         Đăng ký bằng Email
       </Button>

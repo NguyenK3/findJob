@@ -55,12 +55,12 @@ const Login: React.FC = () => {
         }
       >,
     ) =>
-    () => {
-      setState({
-        open: true,
-        Transition,
-      });
-    };
+      () => {
+        setState({
+          open: true,
+          Transition,
+        });
+      };
 
   const handleClose = () => {
     setState({
@@ -166,7 +166,7 @@ const Login: React.FC = () => {
         </Typography>
 
         {/* Google Login Button */}
-        <Button
+        {/* <Button
           variant="outlined"
           startIcon={<GoogleIcon />}
           sx={{
@@ -188,7 +188,7 @@ const Login: React.FC = () => {
 
         <Typography sx={{ mb: 2, textAlign: "center", fontSize: "0.9rem" }}>
           hoặc
-        </Typography>
+        </Typography> */}
 
         {/* Email and Password Fields */}
         <TextField
@@ -280,7 +280,7 @@ const Login: React.FC = () => {
         >
           Bạn chưa có tài khoản?{" "}
           <a
-            href="/register"
+            href="/auth/signup"
             style={{ color: "#FF5722", textDecoration: "none" }}
           >
             Đăng ký ngay

@@ -110,8 +110,14 @@ const RolesTable = () => {
     // { field: '_id', headerName: 'Id', flex: 1 },
     { field: 'name', headerName: 'Name', flex: 2 },
     { field: 'isActive', headerName: 'Trạng thái', flex: 1 },
-    { field: 'createdAt', headerName: 'CreatedAt', flex: 1 },
-    { field: 'updatedAt', headerName: 'UpdatedAt', flex: 2 },
+    {
+      field: 'createdAt', headerName: 'CreatedAt', flex: 1,
+      renderCell: (params) => new Date(params.value).toLocaleString()
+    },
+    {
+      field: 'updatedAt', headerName: 'UpdatedAt', flex: 2,
+      renderCell: (params) => new Date(params.value).toLocaleString()
+    },
     {
       field: 'actions',
       headerName: 'Actions',

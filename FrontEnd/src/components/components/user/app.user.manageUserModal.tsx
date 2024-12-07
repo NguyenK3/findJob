@@ -40,6 +40,7 @@ const ManageUserModal: React.FC<{ open: boolean; onClose: () => void }> = ({ ope
     role: { _id: '', name: '' },
     company: { _id: '', name: '' },
     deletedAt: null,
+    permissions: [],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   });
@@ -122,8 +123,9 @@ const ManageUserModal: React.FC<{ open: boolean; onClose: () => void }> = ({ ope
           // password: password || '',
           role: userData.role ? userData.role._id : '',
           company: userData.company ? { _id: userData.company._id, name: userData.company.name } : { _id: '', name: '' },
-          deletedAt: userData.deletedAt || null,
+          permissions: userData.permissions || [],
           createdAt: userData.createdAt || new Date().toISOString(),
+          deletedAt: userData.deletedAt || null,
           updatedAt: userData.updatedAt || new Date().toISOString(),
         });
       }

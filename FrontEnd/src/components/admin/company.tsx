@@ -3,8 +3,11 @@ import React from "react";
 import CompanyList from "../components/company/app.admin.companyList";
 import { SnackbarProvider } from "notistack";
 import { Slide } from "@mui/material";
+import { useSession } from "next-auth/react";
+import CompanyInfo from "../components/company/app.admin.companyInfo";
 
 export default function Company() {
+  const { data: session } = useSession();
   return (
     <div>
       <SnackbarProvider
@@ -23,20 +26,27 @@ export default function Company() {
           warning: "⚠️", // Icon tùy chỉnh cho trạng thái cảnh báo
           info: "ℹ️", // Icon tùy chỉnh cho trạng thái thông tin
         }}
-        // sx={{
-        //   "& .MuiSnackbarContent-root": {
-        //     backgroundColor: "primary.main", // Màu nền cho các snackbar
-        //     color: "white", // Màu chữ
-        //     borderRadius: "8px", // Bo tròn góc
-        //     boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)", // Hiệu ứng đổ bóng
-        //     transition: "all 0.3s ease-in-out", // Hiệu ứng chuyển động khi snackbar xuất hiện/biến mất
-        //     "&:hover": {
-        //       transform: "scale(1.05)", // Hiệu ứng phóng to khi di chuột
-        //     },
-        //   },
-        // }}
+      // sx={{
+      //   "& .MuiSnackbarContent-root": {
+      //     backgroundColor: "primary.main", // Màu nền cho các snackbar
+      //     color: "white", // Màu chữ
+      //     borderRadius: "8px", // Bo tròn góc
+      //     boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)", // Hiệu ứng đổ bóng
+      //     transition: "all 0.3s ease-in-out", // Hiệu ứng chuyển động khi snackbar xuất hiện/biến mất
+      //     "&:hover": {
+      //       transform: "scale(1.05)", // Hiệu ứng phóng to khi di chuột
+      //     },
+      //   },
+      // }}
       >
-        <CompanyList />
+        {/* {console.log("session", session)} */}
+        {session?.user?.role?.name === "Company" ? (
+          <CompanyInfo />
+        ) : (
+          <CompanyList />
+        )}
+        {/* <CompanyList /> */}
+        {/* <CompanyList /> */}
       </SnackbarProvider>
     </div>
   );

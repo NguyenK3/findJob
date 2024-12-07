@@ -4,6 +4,7 @@ import { Box, Typography } from "@mui/material";
 import JobTable from "../components/job/app.admin.jobTable";
 import Layout from "./layout";
 import { SnackbarProvider } from "notistack";
+import CompanyListJob from "../components/job/app.company.companyListJob";
 
 const JobAdminPage = () => {
   return (
@@ -25,7 +26,8 @@ const JobAdminPage = () => {
             mb={2}
           >
           </Box>
-          <JobTable />
+          {/* <JobTable /> */}
+          <CompanyListJob />
         </Box>
       </Layout>
     </SnackbarProvider>
