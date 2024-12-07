@@ -55,7 +55,7 @@ export const authOptions: AuthOptions = {
    ],
    callbacks: {
       async jwt({ token, user, account, profile, trigger }) {
-         
+
          if (trigger === "signIn" && account?.provider === "credentials") {
             token.access_token = user.access_token
             token.refresh_token = user.refresh_token

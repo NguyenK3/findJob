@@ -25,6 +25,7 @@ interface JobModalProps {
   job: IJob | null;
   companies: ICompany[];
   jobId: string | null; // Thêm jobId vào props
+  sizeObject: number
 }
 
 const JobModal: React.FC<JobModalProps> = ({
@@ -32,8 +33,9 @@ const JobModal: React.FC<JobModalProps> = ({
   onClose,
   onSave,
   job,
-  companies,
+  companies = [], // Đảm bảo rằng companies luôn là một mảng
   jobId, // Nhận jobId từ props
+  sizeObject
 }) => {
   const [formData, setFormData] = useState({
     name: "",
@@ -72,6 +74,26 @@ const JobModal: React.FC<JobModalProps> = ({
       });
     }
   }, [job]);
+
+  useEffect(() => {
+    console.log("size", sizeObject)
+    if (sizeObject === 1) {
+      // companies.forEach((company) => {
+      //   console.log(company);
+      // });
+      // const companiesArray = JSON.stringify(companies); // Chuyển đổi JSON object sang array
+      setFormData((prev) => ({
+        ...prev,
+        company: {
+          _id: companies._id,
+          name: companies.name,
+          logo: companies.logo,
+        },
+      }));
+      // console.log("selected Company", companiesArray);
+    }
+
+  }, [companies]);
 
   const handleSave = async () => {
     await onSave({
@@ -255,38 +277,40 @@ const JobModal: React.FC<JobModalProps> = ({
                 }}
               />
             </Grid>
-            <Grid item xs={12}>
-              <Select
-                label="Công ty"
-                name="company"
-                value={formData.company._id}
-                onChange={(e) => {
-                  const selectedCompany = companies.find(
-                    (c) => c._id === e.target.value,
-                  );
-                  setFormData((prev) => ({
-                    ...prev,
-                    company: {
-                      _id: selectedCompany?._id || "",
-                      name: selectedCompany?.name || "",
-                      logo: selectedCompany?.logo || "",
-                    },
-                  }));
-                }}
-                fullWidth
-                margin="dense"
-                sx={{
-                  transition: "box-shadow 0.3s",
-                  "&:hover": { boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)" },
-                }}
-              >
-                {companies.map((company) => (
-                  <MenuItem key={company._id} value={company._id}>
-                    {company.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </Grid>
+            {companies.length > 1 && (
+              <Grid item xs={12}>
+                <Select
+                  label="Công ty"
+                  name="company"
+                  value={formData.company._id}
+                  onChange={(e) => {
+                    const selectedCompany = companies.find(
+                      (c) => c._id === e.target.value,
+                    );
+                    setFormData((prev) => ({
+                      ...prev,
+                      company: {
+                        _id: selectedCompany?._id || "",
+                        name: selectedCompany?.name || "",
+                        logo: selectedCompany?.logo || "",
+                      },
+                    }));
+                  }}
+                  fullWidth
+                  margin="dense"
+                  sx={{
+                    transition: "box-shadow 0.3s",
+                    "&:hover": { boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)" },
+                  }}
+                >
+                  {companies.map((company) => (
+                    <MenuItem key={company._id} value={company._id}>
+                      {company.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </Grid>
+            )}
             <Grid item xs={12}>
               <TextField
                 label="Số lượng tuyển"

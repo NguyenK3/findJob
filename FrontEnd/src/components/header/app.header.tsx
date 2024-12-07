@@ -110,6 +110,8 @@ const Header = () => {
       router.push("/");
     } else if (newValue === 1) {
       router.push("/searchJob");
+    } else if (newValue === 2) {
+      router.push("/company");
     }
   };
 
@@ -178,6 +180,8 @@ const Header = () => {
       setValue(0);
     } else if (pathName === '/searchJob') {
       setValue(1);
+    } else if (pathName === '/company') {
+      setValue(2);
     }
   }, [pathName]);
 

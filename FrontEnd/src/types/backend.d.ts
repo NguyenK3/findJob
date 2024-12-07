@@ -20,6 +20,8 @@ declare global {
          name: string
       }
 
+      permissions: IPermission[]
+
       company?: {
          _id: string
          name: string

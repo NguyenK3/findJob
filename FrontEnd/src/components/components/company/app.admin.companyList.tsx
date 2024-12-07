@@ -83,6 +83,7 @@ const CompanyList = () => {
   }, [page, pageSize, searchName, searchAddress]);
 
   const getData = async () => {
+    console.log("user_id", session?.user.company?._id)
     try {
       const res = await fetch(
         `http://localhost:8000/api/v1/companies/?current=${page + 1

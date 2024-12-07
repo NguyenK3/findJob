@@ -198,6 +198,8 @@ const RoleDialog: React.FC<RoleDialogProps> = ({ open, onClose, fetchRoles, curr
                 body: JSON.stringify(newRole),
             });
 
+            console.log('response', newRole);
+
             if (!response.ok) {
                 throw new Error(`Failed to ${isEditMode ? "update" : "create"} role`);
             }
@@ -206,6 +208,7 @@ const RoleDialog: React.FC<RoleDialogProps> = ({ open, onClose, fetchRoles, curr
             onClose(); // Close the dialog after successful creation
             fetchRoles(current, pageSize); // Fetch lại data cho roleTable
             resetForm(); // Reset form after successful creation or update
+            return data.data;
 
         } catch (error) {
             console.error(`Error ${isEditMode ? "updating" : "creating"} role:`, error);
@@ -332,6 +335,9 @@ const RoleDialog: React.FC<RoleDialogProps> = ({ open, onClose, fetchRoles, curr
             </DialogContent>
 
             <DialogActions>
+                <Button variant="contained" color="primary" onClick={handleSubmit}>
+                    Save
+                </Button>
                 <Button onClick={onClose} color="secondary">
                     Cancel
                 </Button>

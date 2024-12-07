@@ -11,6 +11,7 @@ import {
   Icon,
   Grid
 } from "@mui/material";
+import { useRouter } from "next/navigation";
 
 // Styled Card with box-shadow and transition effects
 const StyledCard = styled(Card)({
@@ -41,15 +42,17 @@ interface ToolCardProps {
   title: string;
   description: string;
   buttonText: string;
-buttonColor?: string;
+  buttonColor?: string;
+  onClick?: () => void;
 }
 
 const ToolCard: React.FC<ToolCardProps> = ({
-icon,
-title,
-description,
-buttonText,
-buttonColor,
+  icon,
+  title,
+  description,
+  buttonText,
+  buttonColor,
+  onClick,
 }) => {
   return (
     <StyledCard>
@@ -98,6 +101,7 @@ buttonColor,
               color: "#fff",
             },
           }}
+          onClick={onClick}
         >
           {buttonText}
         </Button>
@@ -108,6 +112,12 @@ buttonColor,
 
 // Section Component for The Best Tools for Finding Your Next Job
 const HomeSection = () => {
+  const router = useRouter();
+
+  const handleViewTemplates = () => {
+    router.push('/cv');
+  };
+
   return (
     <Box
       sx={{
@@ -175,6 +185,7 @@ const HomeSection = () => {
             title="CV Templates"
             description="Upgrade your CV with industry-recommended templates."
             buttonText="View CV Templates"
+            onClick={handleViewTemplates}
           />
         </Grid>
 

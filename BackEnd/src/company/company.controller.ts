@@ -19,8 +19,8 @@ export class CompanyController {
   @ResponseMessage("Fetch list company with paginatation")
   @Public()
   findAll(
-    @Query('current') currentPage: string, 
-    @Query('pageSize') limit: string, 
+    @Query('current') currentPage: string,
+    @Query('pageSize') limit: string,
     @Query() qs: string) {
     return this.companyService.findAll(+currentPage, +limit, qs);
   }
@@ -45,5 +45,15 @@ export class CompanyController {
       return 'Not found Company'
     }
     return await this.companyService.remove(id, user);
+  }
+
+  @Get('top/companies')
+  @Public()
+  @ResponseMessage('Fetch Top Companies')
+  async findTopCompanies(
+    @Query('criteria') criteria: 'jobCount' | 'highSalary',
+    @Query('limit') limit: string
+  ) {
+    return this.companyService.findTopCompanies(criteria, +limit);
   }
 }

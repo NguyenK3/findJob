@@ -59,7 +59,8 @@ export class CompanyService {
 
   async findOne(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id)) throw new BadRequestException('Invalid Company ID');
-    return await this.companyModel.findById(id)
+    const result = await this.companyModel.findById(id)
+    return result
   }
 
   async update(id, updateCompanyDto: UpdateCompanyDto, user: IUsers) {
@@ -88,5 +89,106 @@ export class CompanyService {
     return this.companyModel.softDelete(
       { _id: id }
     );
+  }
+
+  async findTopCompanies(criteria: 'jobCount' | 'highSalary', limit: number) {
+    console.log("criteria", criteria)
+    if (!['jobCount', 'highSalary'].includes(criteria)) {
+      throw new BadRequestException('Invalid criteria');
+    }
+
+    if (!Number.isInteger(limit) || limit <= 0) {
+      throw new BadRequestException('Limit must be a positive integer');
+    }
+
+    let companies;
+
+    if (criteria === 'jobCount') {
+      companies = await this.companyModel.aggregate([
+        {
+          $addFields: {
+            companyObjectId: { $toString: "$_id" }  // Chuyển đổi _id thành string
+          }
+        },
+        {
+          $lookup: {
+            from: "jobs",  // Collection cần nối
+            localField: "companyObjectId",  // Trường trong collection1
+            foreignField: "company._id", // Trường trong collection2
+            as: "jobs_data"      // Alias để chứa kết quả nối
+          }
+        },
+        {
+          $match: {
+            "jobs_data": { $ne: [] }  // Kiểm tra xem có dữ liệu nối hay không
+          }
+        },
+        {
+          $addFields: {
+            jobCount: { $size: '$jobs_data' }
+          }
+        },
+        {
+          $sort: { jobCount: -1 }
+        },
+        {
+          $limit: limit
+        },
+        {
+          $project: {
+            _id: 1,
+            name: 1,
+            jobCount: 1
+          }
+        }
+      ]);
+    } else if (criteria === 'highSalary') {
+      companies = await this.companyModel.aggregate([
+        {
+          $addFields: {
+            companyObjectId: { $toString: "$_id" }  // Chuyển đổi _id thành string
+          }
+        },
+        {
+          $lookup: {
+            from: "jobs",  // Collection cần nối
+            localField: "companyObjectId",  // Trường trong collection1
+            foreignField: "company._id", // Trường trong collection2
+            as: "jobs_data"      // Alias để chứa kết quả nối
+          }
+        },
+        {
+          $match: {
+            "jobs_data": { $ne: [] }  // Kiểm tra xem có dữ liệu nối hay không
+          }
+        },
+        {
+          $addFields: {
+            maxSalary: { $max: '$jobs_data.salary' }
+          }
+        },
+        {
+          $sort: { maxSalary: -1 }
+        },
+        {
+          $limit: limit
+        },
+        {
+          $project: {
+            _id: 1,
+            name: 1,
+            maxSalary: 1
+          }
+        }
+      ]);
+    }
+
+    // Log từng giá trị trong kết quả
+    // companies.forEach(company => {
+    //   console.log(`Company ID: ${company._id}`);
+    //   console.log(`Jobs: ${JSON.stringify(company.jobs_data, null, 2)}`);
+    // });
+
+    return companies;
   }
 }

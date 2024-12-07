@@ -13,7 +13,7 @@ import aqp from 'api-query-params';
 @Injectable()
 export class JobsService {
 
-  constructor(@InjectModel(Jobs.name) private jobModel: SoftDeleteModel<JobsDocument>) { }
+  constructor(@InjectModel(Jobs.name) public jobModel: SoftDeleteModel<JobsDocument>) { }
 
   async create(createJobDto: CreateJobDto, @User() user: IUsers) {
     const { name, skills, company, location, salary, quantity,
@@ -60,6 +60,10 @@ export class JobsService {
       },
       result //kết quả query
     }
+  }
+
+  async findAllActiveJobs() {
+    return this.jobModel.find({ isActive: true }).exec();
   }
 
   async findOne(id: string) {
