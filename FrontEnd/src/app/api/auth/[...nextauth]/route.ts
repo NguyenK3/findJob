@@ -1,10 +1,10 @@
 import { sendRequest } from "@/utils/api";
-import NextAuth, { AuthOptions } from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-export const authOptions: AuthOptions = {
+export const authOptions: NextAuthOptions = {
   secret: process.env.NO_SECRET,
   // Configure one or more authentication providers
   providers: [
