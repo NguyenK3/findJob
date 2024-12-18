@@ -7,7 +7,7 @@ import HomeSection from "@/components/components/home/app.homeSection";
 import TopEmployers from "@/components/components/company/app.topEmployee";
 import Footer from "@/components/footer/app.footer";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "../api/auth/[...nextauth]/route";
+import authOptions from "../api/auth/[...nextauth]/options";
 
 const Home = async () => {
   const session = await getServerSession(authOptions);
