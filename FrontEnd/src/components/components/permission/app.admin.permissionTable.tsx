@@ -3,7 +3,7 @@ import { Box, Button, Container, Grid, IconButton, MenuItem, TextField, Typograp
 import { DataGrid, GridColDef, GridToolbar, GridPaginationModel } from "@mui/x-data-grid";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
-import PermissionModal from "./app.admin.PermissionModal";
+import PermissionModal from "./app.admin.permissionModal";
 
 const PermissionTable = () => {
   const [permissions, setPermissions] = useState<IPermission[]>([]);
