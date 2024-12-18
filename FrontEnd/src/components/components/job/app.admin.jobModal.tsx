@@ -18,6 +18,12 @@ import { NumericFormat } from "react-number-format";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
+interface ICompany {
+  _id: string;
+  name: string;
+  logo: string;
+}
+
 interface JobModalProps {
   open: boolean;
   onClose: () => void;
@@ -85,9 +91,9 @@ const JobModal: React.FC<JobModalProps> = ({
       setFormData((prev) => ({
         ...prev,
         company: {
-          _id: companies._id,
-          name: companies.name,
-          logo: companies.logo,
+          _id: companies[0]._id,
+          name: companies[0].name,
+          logo: companies[0].logo,
         },
       }));
       // console.log("selected Company", companiesArray);
