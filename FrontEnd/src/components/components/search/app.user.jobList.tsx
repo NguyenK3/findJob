@@ -274,6 +274,7 @@ const JobList = () => {
       throw new Error("Failed to fetch jobs");
     }
     const data = await response.json();
+    // console.log(data.data);
     setTotal(data.data.meta.total);
     return data.data.result;
   };
@@ -285,6 +286,7 @@ const JobList = () => {
     skills: string,
     salary: string
   ) => {
+    // console.log(city, keyword, jobName, skills, salary);
     if (session?.access_token) {
       setLoading(true);
       try {
@@ -297,6 +299,7 @@ const JobList = () => {
           city !== "all" ? city : undefined,
           jobName
         );
+        // console.log(jobName);
         if (salary) {
           const filteredJobs = data.filter((job) => job.salary >= parseInt(salary));
           setJobs(filteredJobs);
@@ -307,11 +310,23 @@ const JobList = () => {
         }
         else if (city) {
           const filteredJobs = data.filter((job) => job.location.includes(city))
+          // console.log('abcd', filteredJobs)
           setJobs(filteredJobs);
         }
         // console.log(jobName)
+        // console.log(jobName)
+        if (jobName) {
+          // console.log('abc', jobName)
+          // console.log(data)
+          // const filteredJobs = data.filter((job) => job.name.includes(jobName))
+          // console.log('abc', data.filter(job => job.name.includes(jobName)))
+          setJobs(data);
+        }
         // else if (jobName) {
-        //   const filteredJobs = data.filter((job) => job.location.includes(jobName))
+        //   console.log('abc', jobName)
+        //   console.log(data)
+        //   const filteredJobs = data.filter((job) => job.name.includes(jobName))
+        //   // console.log('abc', jobName)
         //   setJobs(filteredJobs);
         // }
       } catch (error) {
@@ -330,6 +345,7 @@ const JobList = () => {
           paginationModel.page,
           paginationModel.pageSize,
         );
+        console.log(data);
         setJobs(data);
       } catch (error) {
         console.error("Failed to fetch jobs:", error);

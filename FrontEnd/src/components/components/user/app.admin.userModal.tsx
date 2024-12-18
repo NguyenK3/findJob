@@ -64,8 +64,8 @@ const UserDialog = ({
           user.gender === "MALE"
             ? "Nam"
             : user.gender === "FEMALE"
-            ? "Nữ"
-            : "Khác",
+              ? "Nữ"
+              : "Khác",
         role: roleId || "",
         company: user.company || { _id: "", name: "" },
         address: user.address,
@@ -91,8 +91,8 @@ const UserDialog = ({
   const handleChange = (
     e:
       | React.ChangeEvent<
-          HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-        >
+        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      >
       | SelectChangeEvent<string>,
   ) => {
     const { name, value } = e.target;

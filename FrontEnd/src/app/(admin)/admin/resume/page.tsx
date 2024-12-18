@@ -1,5 +1,6 @@
-import ResumesAdmin from "@/components/admin/resumes";
+"use client"
 
+import ResumesAdmin from "@/components/admin/resumes";
 const ResumeAdminPage = () => {
     return (
         <>

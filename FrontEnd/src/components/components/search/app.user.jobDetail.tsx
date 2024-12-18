@@ -34,6 +34,12 @@ const JobDetail: React.FC<JobDetailProps> = ({ job }) => {
     setIsModalOpen(false); // Close modal
   };
 
+  const handleCompanyClick = () => {
+    if (job.company?._id) {
+      router.push(`/company/${job.company._id}`);
+    }
+  };
+
   const parseSections = (html: string) => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
@@ -146,7 +152,10 @@ const JobDetail: React.FC<JobDetailProps> = ({ job }) => {
         <Typography variant="h4" gutterBottom fontWeight="bold">
           {job.name}
         </Typography>
-        <Typography variant="subtitle1" color="text.secondary">
+        <Typography variant="subtitle1"
+          color="text.secondary"
+          onClick={handleCompanyClick}
+          sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}>
           {job.company?.name}
         </Typography>
       </Box>

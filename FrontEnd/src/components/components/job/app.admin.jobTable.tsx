@@ -636,6 +636,7 @@ const JobTable: React.FC = () => {
         onSave={isEditMode ? handleUpdateJob : handleCreateJob}
         job={currentJob}
         jobId={currentJob?._id || ""}
+        sizeObject={0} // Add the sizeObject property with a default value
       />
 
       <Snackbar

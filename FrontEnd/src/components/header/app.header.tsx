@@ -25,7 +25,6 @@ import Link from "next/link";
 import SwipeableDrawer from "@mui/material/SwipeableDrawer";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
-import ManageUserModal from "../components/user/app.user.manageUserModal";
 
 const Logo = styled("img")({
   width: 40,
@@ -94,7 +93,6 @@ const Header = () => {
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const router = useRouter();
   const pathName = usePathname();
-  const [isManageUserModalOpen, setIsManageUserModalOpen] = useState(false);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -116,12 +114,7 @@ const Header = () => {
   };
 
   const handleManageUserClick = () => {
-    setIsManageUserModalOpen(true);
-    handleMenuClose();
-  };
-
-  const handleManageUserModalClose = () => {
-    setIsManageUserModalOpen(false);
+    router.push("/manage-user");
   };
 
   const toggleDrawer =
@@ -245,10 +238,9 @@ const Header = () => {
                 keepMounted
               >
                 <MenuItem onClick={handleManageUserClick}>Manage User</MenuItem>
-                <MenuItem onClick={handleMenuClose}>My Account</MenuItem>
                 {session.user &&
                   session.user.role &&
-                  session.user.role.name !== "user" && (
+                  session.user.role.name !== "NORMAL_USER" && (
                     <MenuItem onClick={handleMenuClose}>
                       <Link href="/admin">Admin DashBoard</Link>
                     </MenuItem>
@@ -282,10 +274,6 @@ const Header = () => {
       >
         {drawerContent}
       </SwipeableDrawer>
-      <ManageUserModal
-        open={isManageUserModalOpen}
-        onClose={handleManageUserModalClose}
-      />
     </CustomAppBar>
   );
 };

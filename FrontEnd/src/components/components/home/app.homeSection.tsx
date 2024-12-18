@@ -175,6 +175,7 @@ const HomeSection = () => {
             description="Build a comprehensive IT profile with structured sections and detailed suggestions."
             buttonText="Update Profile"
             buttonColor="error"
+            onClick={() => router.push('/manage-user')}
           />
         </Grid>
 
