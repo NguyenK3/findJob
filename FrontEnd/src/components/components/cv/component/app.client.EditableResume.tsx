@@ -5,8 +5,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import Resume from "../app.client.cvEditor";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import html2pdf from "html2pdf.js";
-import dynamic from "next/dynamic";
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
