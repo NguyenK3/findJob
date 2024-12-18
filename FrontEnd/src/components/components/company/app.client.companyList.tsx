@@ -1,7 +1,6 @@
 "use client";
 
-import { Box, Typography } from "@mui/material";
-import Grid from "@mui/material/Grid";
+import { Box, Typography, Grid, Pagination } from "@mui/material";
 import { useEffect, useState } from "react";
 import EmployerCard from "./app.employCard";
 
@@ -15,30 +14,38 @@ interface ICompany {
 
 const CompanyList = () => {
     const [companies, setCompanies] = useState<ICompany[]>([]);
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(5);
+    const [totalCount, setTotalCount] = useState(0);
+
+    const fetchCompanies = async (currentPage: number, pageSize: number) => {
+        try {
+            const response = await fetch(
+                `http://localhost:8000/api/v1/companies/?current=${currentPage}&pageSize=${pageSize}`,
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+            if (!response.ok) {
+                throw new Error("Failed to fetch companies");
+            }
+            const data = await response.json();
+            setCompanies(data.data.result);
+            setTotalCount(data.data.totalCount);
+        } catch (error) {
+            console.error("Error fetching companies:", error);
+        }
+    };
 
     useEffect(() => {
-        const fetchCompanies = async () => {
-            try {
-                const response = await fetch("http://localhost:8000/api/v1/companies/?current=1&pageSize=5",
-                    {
-                        headers: {
-                            "Content-Type": "application/json",
-                        }
-                    }
-                );
-                if (!response.ok) {
-                    throw new Error("Failed to fetch companies");
-                }
-                const data = await response.json();
-                setCompanies(data.data.result);
-                console.log(data)
-            } catch (error) {
-                console.error("Error fetching companies:", error);
-            }
-        };
+        fetchCompanies(page, pageSize);
+    }, [page, pageSize]);
 
-        fetchCompanies();
-    }, []);
+    const handlePageChange = (_event: React.ChangeEvent<unknown>, value: number) => {
+        setPage(value);
+    };
 
     return (
         <Box sx={{ py: 5 }}>
@@ -72,6 +79,15 @@ const CompanyList = () => {
                     </Grid>
                 ))}
             </Grid>
+
+            <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+                <Pagination
+                    count={Math.ceil(totalCount / pageSize)}
+                    page={page}
+                    onChange={handlePageChange}
+                    color="primary"
+                />
+            </Box>
         </Box>
     );
 };

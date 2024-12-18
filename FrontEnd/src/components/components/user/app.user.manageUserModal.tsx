@@ -534,65 +534,92 @@ const ManageUserPage: React.FC = () => {
   };
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>
+    <Box
+      sx={{
+        p: 3,
+        backgroundColor: 'background.default',
+        color: 'text.primary',
+        borderRadius: 2,
+        boxShadow: 3,
+      }}
+    >
+      <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: 'primary.main' }}>
         Quản lý tài khoản
       </Typography>
-      <Tabs value={tabIndex} onChange={handleTabChange} centered>
+
+      <Tabs
+        value={tabIndex}
+        onChange={handleTabChange}
+        centered
+        sx={{
+          mb: 3,
+          '.MuiTab-root': {
+            fontWeight: 'medium',
+            transition: 'all 0.3s',
+            '&:hover': {
+              color: 'primary.dark',
+            },
+          },
+          '.Mui-selected': {
+            color: 'primary.main',
+            fontWeight: 'bold',
+          },
+        }}
+      >
         <Tab label="Rải CV" />
         <Tab label="Cập nhật thông tin" />
         <Tab label="Thay đổi mật khẩu" />
       </Tabs>
+
       {tabIndex === 0 && (
         <Box sx={{ mt: 2 }}>
-          <TableContainer>
+          <TableContainer sx={{ borderRadius: 2, boxShadow: 1 }}>
             <Table>
               <TableHead>
-                <TableRow>
-                  <TableCell>STT</TableCell>
-                  <TableCell>Công Ty</TableCell>
-                  <TableCell>Tên Job</TableCell>
-                  <TableCell>Trạng thái</TableCell>
-                  <TableCell>Ngày rải CV</TableCell>
-                  <TableCell>Chi tiết</TableCell>
+                <TableRow sx={{ backgroundColor: 'primary.light' }}>
+                  <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>STT</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Công Ty</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Tên Job</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Trạng thái</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Ngày rải CV</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: 'white' }}>Chi tiết</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {Array.isArray(resumeData) && resumeData.map((data, index) => (
-                  <React.Fragment key={data._id}>
-                    <TableRow>
-                      <TableCell>{index + 1}</TableCell>
-                      <TableCell>{typeof data.companyId === 'object' ? data.companyId.name : data.companyId}</TableCell>
-                      <TableCell>{typeof data.jobId === 'object' ? data.jobId.name : data.jobId}</TableCell>
-                      <TableCell>{data.status}</TableCell>
-                      <TableCell>{data.createdAt ? new Date(data.createdAt).toLocaleDateString() : ''}</TableCell>
-                      <TableCell>
-                        <Link
-                          href={`http://localhost:8000/images/resume/${data?.url}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{
-                            textDecoration: 'none',
-                            color: 'primary.main',
-                          }}
-                          onMouseOver={(e) => (e.currentTarget.style.textDecoration = 'underline')}
-                          onMouseOut={(e) => (e.currentTarget.style.textDecoration = 'none')}
-                        >
-                          {data?.url}
-                        </Link>
-                        {/* <Link onClick={() => handleResumeClick(data)}>Chi Tiết</Link> */}
-                      </TableCell>
-                    </TableRow>
-                  </React.Fragment>
+                  <TableRow key={data._id} sx={{ '&:hover': { backgroundColor: 'grey.100' } }}>
+                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>{typeof data.companyId === 'object' ? data.companyId.name : data.companyId}</TableCell>
+                    <TableCell>{typeof data.jobId === 'object' ? data.jobId.name : data.jobId}</TableCell>
+                    <TableCell>{data.status}</TableCell>
+                    <TableCell>{data.createdAt ? new Date(data.createdAt).toLocaleDateString() : ''}</TableCell>
+                    <TableCell>
+                      <Link
+                        href={`http://localhost:8000/images/resume/${data?.url}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          textDecoration: 'none',
+                          color: 'primary.main',
+                          fontWeight: 'medium',
+                        }}
+                        onMouseOver={(e) => (e.currentTarget.style.textDecoration = 'underline')}
+                        onMouseOut={(e) => (e.currentTarget.style.textDecoration = 'none')}
+                      >
+                        {data?.url}
+                      </Link>
+                    </TableCell>
+                  </TableRow>
                 ))}
               </TableBody>
             </Table>
           </TableContainer>
         </Box>
       )}
+
       {tabIndex === 1 && (
         <Box sx={{ mt: 2 }}>
-          <Typography variant="h6" gutterBottom>
+          <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
             Cập nhật thông tin
           </Typography>
           <Grid container spacing={2}>
@@ -671,15 +698,15 @@ const ManageUserPage: React.FC = () => {
               />
             </Grid>
           </Grid>
-          <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+          <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
             <Button
               variant="contained"
               color="primary"
               onClick={() => handleSubmit(formData)}
               sx={{
-                transition: 'all 0.2s ease-in-out',
+                transition: 'all 0.3s ease-in-out',
                 '&:hover': {
-                  boxShadow: 4,
+                  boxShadow: 3,
                   transform: 'scale(1.05)',
                 },
               }}
@@ -689,14 +716,16 @@ const ManageUserPage: React.FC = () => {
           </Box>
         </Box>
       )}
+
       {tabIndex === 2 && (
-        <Typography variant="body1" sx={{ mt: 2 }}>
+        <Typography variant="body1" sx={{ mt: 2, fontStyle: 'italic', color: 'text.secondary' }}>
           Thay đổi mật khẩu content goes here.
         </Typography>
       )}
+
       {cvUrl && (
         <Dialog open={Boolean(cvUrl)} onClose={() => setCvUrl(null)} maxWidth="md" fullWidth>
-          <DialogTitle>
+          <DialogTitle sx={{ fontWeight: 'bold' }}>
             CV
             <IconButton
               aria-label="close"
@@ -712,7 +741,7 @@ const ManageUserPage: React.FC = () => {
             </IconButton>
           </DialogTitle>
           <DialogContent dividers>
-            <iframe src={cvUrl} width="100%" height="600px" title="User CV" />
+            <iframe src={cvUrl} width="100%" height="600px" title="User CV" style={{ border: 'none' }} />
           </DialogContent>
         </Dialog>
       )}

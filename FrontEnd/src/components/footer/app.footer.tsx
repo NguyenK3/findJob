@@ -10,7 +10,7 @@ const Footer = () => {
       component="footer"
       sx={{
         backgroundImage:
-          'url("https://static.vecteezy.com/system/resources/previews/015/840/127/large_2x/luxurious-colorful-liquid-marble-surface-background-dark-red-color-beautiful-fluid-abstract-marble-oil-paint-background-illustration-free-vector.jpg")', // Đổi màu nền cho footer
+          'url("https://comuti.in/wp-content/uploads/2021/07/footer-bg.png")', // Đổi màu nền cho footer
         backgroundSize: "cover", // Ensure the background image covers the entire footer
         color: "white",
         p: 4,
@@ -134,7 +134,7 @@ const Footer = () => {
             Trang Chủ
           </Link>
           <Link href="/" color="inherit" sx={linkStyle}>
-            Về ITviec.com
+            Về KabaNoPro.com
           </Link>
           <Link href="/" color="inherit" sx={linkStyle}>
             Dịch vụ gọi ý ứng viên
@@ -233,7 +233,7 @@ const Footer = () => {
             Hà Nội: (+84) 333 567 890
           </Typography>
           <Typography variant="body2" sx={contactStyle}>
-            Email: love@itviec.com
+            Email: nh027471@gmail.com
           </Typography>
           <Link href="/" color="inherit" sx={linkStyle}>
             Gửi thông tin liên hệ
@@ -273,4 +273,3 @@ const contactStyle = {
 };
 
 export default Footer;
-import { transform } from "next/dist/build/swc";

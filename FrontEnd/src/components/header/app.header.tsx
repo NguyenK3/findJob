@@ -241,9 +241,12 @@ const Header = () => {
                 {session.user &&
                   session.user.role &&
                   session.user.role.name !== "NORMAL_USER" && (
-                    <MenuItem onClick={handleMenuClose}>
-                      <Link href="/admin">Admin DashBoard</Link>
-                    </MenuItem>
+                    <Link href="/admin" passHref>
+                      <MenuItem onClick={handleMenuClose}>
+                        Admin DashBoard
+                      </MenuItem>
+                    </Link>
+
                   )}
                 <MenuItem
                   onClick={() => {

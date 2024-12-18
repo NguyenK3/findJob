@@ -149,13 +149,13 @@ const slides = [
       "Connect with top employers and find job opportunities that match your skills and aspirations. Your dream job is just a click away!",
   },
   {
-    image: "https://media.istockphoto.com/id/1455726855/vector/simple-vector-illustration-material-of-a-working-business-person.jpg?s=612x612&w=0&k=20&c=F7QskjbjsDvi20DSK17PcVS-VwJ1gdiWx8kcj_k-GvE=",
+    image: "https://image.cdn2.seaart.me/2023-09-25/18099464721956869/f24bed890bdab16ce73e907507441825099564ad_high.webp",
     title: "Land Your Dream Job Today",
     description:
       "Browse thousands of job listings from leading companies and take the next big step in your career. Don’t wait—your future starts now.",
   },
   {
-    image: "https://png.pngtree.com/thumb_back/fh260/background/20190221/ourmid/pngtree-business-simple-exhibition-board-jobs-image_22339.jpg",
+    image: "https://png.pngtree.com/background/20211215/original/pngtree-purple-and-white-clouds-beautiful-anime-beautiful-scene-picture-image_1500467.jpg",
     title: "Unlock New Career Opportunities",
     description:
       "Whether you're a fresh graduate or an experienced professional, explore endless job opportunities and elevate your career to the next level.",
