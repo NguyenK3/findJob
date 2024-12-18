@@ -11,7 +11,7 @@ const ResumesAdmin = () => {
             {/* {console.log("session", session)} */}
             {session?.user?.role?.name === "Company" || session?.user?.role?.name === "HR"
                 ? (
-                    console.log("session", session),
+                    // console.log("session", session),
                     <ResumeTableByCompanyId />
                 ) : (
                     <ResumeTable />
