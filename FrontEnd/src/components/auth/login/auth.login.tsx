@@ -243,7 +243,7 @@ const Login: React.FC = () => {
             label="Ghi nhớ tài khoản"
           />
           <a
-            href="/forgot-password"
+            href="/auth/forgot-password"
             style={{ color: "#FF5722", textDecoration: "none" }}
           >
             Quên mật khẩu?

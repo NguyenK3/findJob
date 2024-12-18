@@ -24,7 +24,7 @@ export class User {
     @Prop()
     address: string;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId , ref: Role.name})
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Role.name })
     role: mongoose.Schema.Types.ObjectId;
 
     @Prop()
@@ -65,6 +65,9 @@ export class User {
 
     @Prop()
     deletedAt: Date
+
+    // @Prop()
+    // otp: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

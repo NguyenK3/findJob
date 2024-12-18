@@ -157,4 +157,35 @@ export class AuthService {
         response.clearCookie('refresh_token')
         return 'ok'
     }
+
+    // async forgotPassword(body: any) {
+    //     const user = await this.usersService.findByEmail(body.email);
+    //     if (!user) {
+    //         throw new Error('User not found');
+    //     }
+
+    //     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    //     await this.usersService.saveOtp(user._id, otp);
+
+    //     await this.mailerService.sendMail({
+    //         to: user.email,
+    //         subject: 'Your OTP Code',
+    //         template: './otp', // e.g., src/mail/templates/otp.hbs
+    //         context: {
+    //             otp,
+    //         },
+    //     });
+
+    //     return { message: 'OTP sent to email' };
+    // }
+
+    // async verifyOtp(body: any) {
+    //     const user = await this.usersService.findByEmail(body.email);
+    //     if (!user || user.otp !== body.otp) {
+    //         throw new Error('Invalid OTP');
+    //     }
+
+    //     const token = this.jwtService.sign({ userId: user._id });
+    //     return { token };
+    // }
 }

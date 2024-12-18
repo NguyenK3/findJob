@@ -57,7 +57,7 @@ export class UsersService {
     if (isExistEmail) {
       throw new BadRequestException(`${email} is already exists`);
     }
-    const fetchUserRole =  await this.roleModel.findOne({name: USER_ROLE})
+    const fetchUserRole = await this.roleModel.findOne({ name: USER_ROLE })
     const hashPassword = this.getHashPassWord(password);
     const user = await this.userModel.create({
       email,
@@ -109,7 +109,7 @@ export class UsersService {
       .select('-password')
       .populate({
         path: "role",
-        select: {name: 1, _id: 1}
+        select: { name: 1, _id: 1 }
       })
   }
 
@@ -146,7 +146,7 @@ export class UsersService {
   }
 
   isValidEmail(email: string) {
-    return this.userModel.findOne({ email: email }).populate({ path: "role", select: { name: 1 }})
+    return this.userModel.findOne({ email: email }).populate({ path: "role", select: { name: 1 } })
   }
 
   isValidPassword(password: string, hash: string) {
@@ -159,5 +159,19 @@ export class UsersService {
 
   findUserByToken = async (refreshToken: string) => {
     return await this.userModel.findOne({ refreshToken }).populate({ path: "role", select: { name: 1 } })
+  }
+
+  // async findByEmail(email: string): Promise<User> {
+  //   return this.userModel.findOne({ email }).exec();
+  // }
+
+  // async saveOtp(userId: string, otp: string): Promise<void> {
+  //   await this.userModel.findByIdAndUpdate(userId, { otp }).exec();
+  // }
+  async findByEmail(email: string): Promise<UserM | undefined> {
+    return await this.userModel.findOne({ email: email });
+  }
+  async updatePassword(email: string, hashedPassword: string) {
+    return this.userModel.updateOne({ email }, { password: hashedPassword });
   }
 }

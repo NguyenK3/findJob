@@ -149,13 +149,13 @@ const slides = [
       "Connect with top employers and find job opportunities that match your skills and aspirations. Your dream job is just a click away!",
   },
   {
-    image: "https://cdn.popsww.com/blog/sites/2/2022/10/nhan-vat-nu-anime-cute-1920x1080.jpg",
+    image: "https://media.istockphoto.com/id/1455726855/vector/simple-vector-illustration-material-of-a-working-business-person.jpg?s=612x612&w=0&k=20&c=F7QskjbjsDvi20DSK17PcVS-VwJ1gdiWx8kcj_k-GvE=",
     title: "Land Your Dream Job Today",
     description:
       "Browse thousands of job listings from leading companies and take the next big step in your career. Don’t wait—your future starts now.",
   },
   {
-    image: "https://simg.zalopay.com.vn/zlp-website/assets/phim_anime_hay_24_590c912b02.jpg",
+    image: "https://png.pngtree.com/thumb_back/fh260/background/20190221/ourmid/pngtree-business-simple-exhibition-board-jobs-image_22339.jpg",
     title: "Unlock New Career Opportunities",
     description:
       "Whether you're a fresh graduate or an experienced professional, explore endless job opportunities and elevate your career to the next level.",

@@ -137,4 +137,40 @@ export class ResumesService {
         }
       ])
   }
+
+  async findUserByCompanyId(companyId: string, currentPage: number, limit: number) {
+    if (!mongoose.Types.ObjectId.isValid(companyId)) {
+      throw new BadRequestException('Invalid Company ID');
+    }
+
+    let offset = (currentPage - 1) * limit;
+    let defaultLimit = limit ? limit : 10;
+    const totalItems = await this.resumeModel.countDocuments({ companyId });
+    const totalPages = Math.ceil(totalItems / defaultLimit);
+
+    const result = await this.resumeModel.find({ companyId })
+      .skip(offset)
+      .limit(defaultLimit)
+      .sort("-createdAt")
+      .populate([
+        {
+          path: "userId",
+          select: { name: 1, email: 1 }
+        },
+        {
+          path: "jobId",
+          select: { name: 1 }
+        }
+      ]);
+
+    return {
+      meta: {
+        current: currentPage,
+        pageSize: limit,
+        pages: totalPages,
+        total: totalItems
+      },
+      result
+    };
+  }
 }

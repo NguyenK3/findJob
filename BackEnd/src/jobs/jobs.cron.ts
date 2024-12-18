@@ -6,6 +6,8 @@ import { JobsService } from './jobs.service';
 export class JobsCron {
     constructor(private readonly jobsService: JobsService) { }
 
+    // @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT) // Chạy vào lúc 00:00 mỗi ngày
+    // @Cron(CronExpression.EVERY_5_SECONDS) // Chạy vào lúc 00:00 mỗi ngày
     @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT) // Chạy vào lúc 00:00 mỗi ngày
     async handleCron() {
         const now = new Date();
@@ -13,5 +15,8 @@ export class JobsCron {
             { endDate: { $lt: now }, isActive: true },
             { $set: { isActive: false } }
         );
+
+        const jobs = await this.jobsService.jobModel.findOne({ isActive: true });
+        console.log('Cron JobsCron', jobs);
     }
 }

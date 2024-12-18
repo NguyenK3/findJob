@@ -65,6 +65,11 @@ export class AuthController {
     return req.user;
   }
 
+  // @Get('forgot-password')
+  // async forgotPassword(@Body() body) {
+  //   return this.authService.forgotPassword(body)
+  // }
+
   @Get()
   @Render('home')
   getHello() {

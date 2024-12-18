@@ -220,7 +220,7 @@ export default function Register() {
         sx={{ mt: 3, textAlign: 'center', color: 'rgba(0, 0, 0, 0.7)', fontSize: '0.9rem' }}
       >
         Bạn đã có tài khoản?{' '}
-        <a href="/login" style={{ color: '#FF5722', textDecoration: 'none' }}>
+        <a href="/auth/signin" style={{ color: '#FF5722', textDecoration: 'none' }}>
           Đăng nhập ngay!
         </a>
       </Typography>

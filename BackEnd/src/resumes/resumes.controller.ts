@@ -7,7 +7,7 @@ import { IUsers } from 'src/users/interface/users.interface';
 
 @Controller('resumes')
 export class ResumesController {
-  constructor(private readonly resumesService: ResumesService) {}
+  constructor(private readonly resumesService: ResumesService) { }
 
   @Post()
   @ResponseMessage('Create A New Resume')
@@ -24,8 +24,8 @@ export class ResumesController {
   @Get()
   @ResponseMessage('Fetch A Resumes With Paginate')
   async findAll(
-    @Query('current') currentPage: string, 
-    @Query('pageSize') limit: string, 
+    @Query('current') currentPage: string,
+    @Query('pageSize') limit: string,
     @Query() qs: string
   ) {
     return await this.resumesService.findAll(+currentPage, +limit, qs);
@@ -50,5 +50,14 @@ export class ResumesController {
   @ResponseMessage('Get A Resume By User')
   async getResumeByUser(@User() user: IUsers) {
     return this.resumesService.findByUser(user)
+  }
+
+  @Post('by-company')
+  @ResponseMessage('Get A Resume By Company')
+  async getResumeByCompany(
+    @Body('companyId') companyId: string,
+    @Query('current') currentPage: string,
+    @Query('pageSize') limit: string) {
+    return this.resumesService.findUserByCompanyId(companyId, +currentPage, +limit)
   }
 }
