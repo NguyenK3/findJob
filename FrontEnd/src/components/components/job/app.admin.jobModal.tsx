@@ -85,9 +85,9 @@ const JobModal: React.FC<JobModalProps> = ({
       setFormData((prev) => ({
         ...prev,
         company: {
-          _id: companies[0]._id || "",
-          name: companies[0].name,
-          logo: companies[0].logo,
+          _id: companies[0]?._id || "",
+          name: companies[0]?.name || "",
+          logo: companies[0]?.logo || "",
         },
       }));
       // console.log("selected Company", companiesArray);
