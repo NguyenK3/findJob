@@ -62,16 +62,27 @@ export class JobsService {
     }
   }
 
-  async findAllActiveJobs(currentPage: number, limit: number) {
+  async findAllActiveJobs(currentPage: number, limit: number, qs: string) {
+    const { filter, projection, population } = aqp(qs);
+
+    // Chỉ tìm kiếm các job có isActive là true
+    filter.isActive = true;
+
+    let { sort } = aqp(qs);
     let offset = (currentPage - 1) * limit;
     let defaultLimit = limit ? limit : 10;
-    const totalItems = await this.jobModel.countDocuments({ isActive: true });
+    const totalItems = (await this.jobModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
-
-    const result = await this.jobModel.find({ isActive: true })
+    if (isEmpty(sort)) {
+      // @ts-ignore: Unreachable code error
+      sort = "-createdAt"
+    }
+    const result = await this.jobModel.find(filter)
       .skip(offset)
       .limit(defaultLimit)
-      .sort("-createdAt")
+      .sort(sort as any)
+      .populate(population)
+      .select(projection as any)
       .exec();
 
     return {

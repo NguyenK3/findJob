@@ -67,8 +67,9 @@ export class JobsController {
   @ResponseMessage('Fetch All Jobs Is Active')
   async findJobActive(
     @Query('current') currentPage: string,
-    @Query('pageSize') limit: string
+    @Query('pageSize') limit: string,
+    @Query() qs: string
   ) {
-    return this.jobsService.findAllActiveJobs(+currentPage, +limit);
+    return this.jobsService.findAllActiveJobs(+currentPage, +limit, qs);
   }
 }
