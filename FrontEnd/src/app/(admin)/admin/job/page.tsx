@@ -1,9 +1,11 @@
-import JobAdminPage from "@/components/admin/job";
+"use client"
 
-const JobPage = () => {
+import JobAdmin from "@/components/admin/job";
+
+const JobAdminPage = () => {
     return (
-        <JobAdminPage />
+        <JobAdmin />
     )
 }
 
-export default JobPage;
+export default JobAdminPage;

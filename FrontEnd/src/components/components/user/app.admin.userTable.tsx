@@ -59,7 +59,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
   ) => {
     try {
       const response = await fetch(
-        `http://localhost:8000/api/v1/users/?current=${page + 1
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/?current=${page + 1
         }&pageSize=${pageSize}&name=/${searchName}/i`,
         {
           headers: {
@@ -82,7 +82,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
 
   const fetchCompanies = async () => {
     try {
-      const response = await fetch("http://localhost:8000/api/v1/companies", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/companies`, {
         headers: {
           Authorization: `Bearer ${access_token}`,
           "Content-Type": "application/json",
@@ -101,7 +101,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
 
   const fetchRoles = async () => {
     try {
-      const response = await fetch("http://localhost:8000/api/v1/roles", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/roles`, {
         headers: {
           Authorization: `Bearer ${access_token}`,
           "Content-Type": "application/json",
@@ -122,7 +122,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
   const fetchRoleById = async (roleId: string) => {
     try {
       const response = await fetch(
-        `http://localhost:8000/api/v1/roles/${roleId}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/roles/${roleId}`,
         {
           headers: {
             Authorization: `Bearer ${access_token}`,
@@ -185,7 +185,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
   const handleDeleteSelected = async () => {
     try {
       const deletePromises = selectedUsers.map((id) =>
-        fetch(`http://localhost:8000/api/v1/users/${id}`, {
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/${id}`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${access_token}`,
@@ -217,7 +217,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
 
   const handleDeleteUserById = async (user: IUser) => {
     try {
-      await fetch(`http://localhost:8000/api/v1/users/${user._id}`, {
+      await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/${user._id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${access_token}`,
@@ -254,7 +254,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
 
   const handleUserCreate = async (formData: IUser) => {
     try {
-      const response = await fetch("http://localhost:8000/api/v1/users/", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${access_token}`,
@@ -286,7 +286,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
       const { password, ...updatedFormData } = formData;
       // console.log("Updated form data:", updatedFormData); // Thêm dòng này để kiểm tra dữ liệu cập nhật
 
-      const response = await fetch(`http://localhost:8000/api/v1/users`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users`, {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${access_token}`,

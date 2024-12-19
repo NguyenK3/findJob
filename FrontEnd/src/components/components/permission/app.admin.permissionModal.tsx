@@ -79,7 +79,7 @@ const PermissionModal = ({ open, handleClose, fetchPermissions, currentPermissio
             urlEncodedData.append("method", formData.method || '');
             urlEncodedData.append("module", formData.module || '');
 
-            const response = await fetch(`http://localhost:8000/api/v1/permissions/${currentPermission ? formData._id : ''}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/permissions/${currentPermission ? formData._id : ''}`, {
                 method: currentPermission ? "PATCH" : "POST",
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded",

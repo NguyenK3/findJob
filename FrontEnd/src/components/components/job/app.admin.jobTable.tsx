@@ -81,7 +81,7 @@ const JobTable: React.FC = () => {
     });
 
     const response = await fetch(
-      `http://localhost:8000/api/v1/jobs/?${query.toString()}`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/jobs/?${query.toString()}`,
       {
         headers: {
           Authorization: `Bearer ${access_token}`,
@@ -118,7 +118,7 @@ const JobTable: React.FC = () => {
   };
 
   const createJob = async (job: IJob): Promise<IJob> => {
-    const response = await fetch("http://localhost:8000/api/v1/jobs/", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/jobs/`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${access_token}`,
@@ -133,7 +133,7 @@ const JobTable: React.FC = () => {
   };
 
   const updateJob = async (id: string, job: IJob): Promise<IJob> => {
-    const response = await fetch(`http://localhost:8000/api/v1/jobs/${id}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/jobs/${id}`, {
       method: "PATCH",
       headers: {
         Authorization: `Bearer ${access_token}`,
@@ -148,7 +148,7 @@ const JobTable: React.FC = () => {
   };
 
   const deleteJob = async (id: string): Promise<void> => {
-    const response = await fetch(`http://localhost:8000/api/v1/jobs/${id}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/jobs/${id}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${access_token}`,
@@ -162,7 +162,7 @@ const JobTable: React.FC = () => {
 
   const fetchCompanies = async () => {
     try {
-      const response = await fetch("http://localhost:8000/api/v1/companies", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/companies`, {
         headers: {
           Authorization: `Bearer ${access_token}`,
           "Content-Type": "application/json",
@@ -423,7 +423,6 @@ const JobTable: React.FC = () => {
       <Typography variant="h4" sx={{ mb: 4 }}>
         Danh sách Jobs
       </Typography>
-
       <Grid container spacing={2} sx={{ mb: 4 }}>
         {/** Nhóm đầu tiên: Kỹ năng, mức lương, địa điểm, và nút "Tìm kiếm", "Làm lại" */}
         <Grid container spacing={2} item xs={12} direction="row" alignItems="center">
@@ -596,7 +595,6 @@ const JobTable: React.FC = () => {
           Thêm mới
         </Button>
       </Box>
-
       <Box sx={{ height: 400, width: "100%" }}>
         <DataGrid
           rows={jobs}
@@ -628,7 +626,6 @@ const JobTable: React.FC = () => {
           }}
         />
       </Box>
-
       <JobModal
         open={openModal}
         onClose={() => setOpenModal(false)}
@@ -638,7 +635,6 @@ const JobTable: React.FC = () => {
         jobId={currentJob?._id || ""}
         sizeObject={0} // Add the sizeObject property with a default value
       />
-
       <Snackbar
         open={snackbar.open}
         autoHideDuration={6000}

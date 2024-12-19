@@ -17,7 +17,7 @@ const ResetPassword = () => {
       return;
     }
 
-    const response = await fetch('http://localhost:8000/api/v1/password-reset/reset', {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/password-reset/reset`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, newPassword, otp }),

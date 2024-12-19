@@ -42,7 +42,7 @@ const ResumeModal: React.FC<ResumeModalProps> = ({ open, onClose, resume, jobMap
     if (!resume) return;
 
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/resumes/${resume._id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/resumes/${resume._id}`, {
         method: 'PATCH',
         headers: {
           Authorization: `Bearer ${access_token}`,
@@ -142,7 +142,7 @@ const ResumeModal: React.FC<ResumeModalProps> = ({ open, onClose, resume, jobMap
     //     </Grid>
     //     <Box>
     //       <Typography variant="body1" fontWeight="bold">
-    //         Link CV: <Link href={`http://localhost:8000/images/resume/${resume?.url}`} target="_blank" rel="noopener noreferrer">{resume?.url}</Link>
+    //         Link CV: <Link href={`${process.env.NEXT_PUBLIC_BACKEND_URL}/images/resume/${resume?.url}`} target="_blank" rel="noopener noreferrer">{resume?.url}</Link>
     //       </Typography>
     //     </Box>
     //     <Button
@@ -301,7 +301,7 @@ const ResumeModal: React.FC<ResumeModalProps> = ({ open, onClose, resume, jobMap
           >
             Link CV:{' '}
             <Link
-              href={`http://localhost:8000/images/resume/${resume?.url}`}
+              href={`${process.env.NEXT_PUBLIC_BACKEND_URL}/images/resume/${resume?.url}`}
               target="_blank"
               rel="noopener noreferrer"
               sx={{

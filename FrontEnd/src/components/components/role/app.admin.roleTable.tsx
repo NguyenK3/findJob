@@ -34,7 +34,7 @@ const RolesTable = () => {
 
   const fetchRoles = async (current: number, pageSize: number) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/roles/?current=${current}&pageSize=${pageSize}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/roles/?current=${current}&pageSize=${pageSize}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -71,7 +71,7 @@ const RolesTable = () => {
 
   const handleDeleteRole = async (role: IRole) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/roles/${role._id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/roles/${role._id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

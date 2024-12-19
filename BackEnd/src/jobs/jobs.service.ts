@@ -99,4 +99,31 @@ export class JobsService {
     const deleteJob = await this.jobModel.softDelete({ _id: id });
     return deleteJob
   }
+
+  async findJobByCompanyId(companyId: string, currentPage: number, limit: number) {
+    if (!mongoose.Types.ObjectId.isValid(companyId)) {
+      throw new BadRequestException('Invalid Company ID');
+    }
+
+    let offset = (currentPage - 1) * limit;
+    let defaultLimit = limit ? limit : 10;
+    const totalItems = await this.jobModel.countDocuments({ 'company._id': companyId });
+    const totalPages = Math.ceil(totalItems / defaultLimit);
+
+    const result = await this.jobModel.find({ 'company._id': companyId })
+      .skip(offset)
+      .limit(defaultLimit)
+      .sort("-createdAt")
+      .exec();
+
+    return {
+      meta: {
+        current: currentPage,
+        pageSize: limit,
+        pages: totalPages,
+        total: totalItems
+      },
+      result
+    };
+  }
 }

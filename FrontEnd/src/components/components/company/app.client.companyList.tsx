@@ -21,7 +21,7 @@ const CompanyList = () => {
     const fetchCompanies = async (currentPage: number, pageSize: number) => {
         try {
             const response = await fetch(
-                `http://localhost:8000/api/v1/companies/?current=${currentPage}&pageSize=${pageSize}`,
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/companies/?current=${currentPage}&pageSize=${pageSize}`,
                 {
                     headers: {
                         "Content-Type": "application/json",

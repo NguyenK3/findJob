@@ -252,7 +252,7 @@ const JobList = () => {
     });
 
     const response = await fetch(
-      `http://localhost:8000/api/v1/jobs/?${query.toString()}`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/jobs/?${query.toString()}`,
       {
         headers: {
           // Authorization: `Bearer ${access_token}`,

@@ -30,7 +30,7 @@ const ResumeModal: React.FC<ResumeModalProps> = ({ open, onClose, jobId, jobName
     formData.append('fileUpload', file); // Use 'fileUpload' as the parameter name
 
     try {
-      const response = await fetch('http://localhost:8000/api/v1/files/upload', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/files/upload`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${session?.access_token}`,
@@ -65,7 +65,7 @@ const ResumeModal: React.FC<ResumeModalProps> = ({ open, onClose, jobId, jobName
       formData.append('companyId', companyId);
       formData.append('jobId', jobId);
 
-      const response = await fetch('http://localhost:8000/api/v1/resumes/', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/resumes/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',

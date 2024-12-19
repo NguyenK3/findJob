@@ -17,6 +17,7 @@ import dayjs, { Dayjs } from "dayjs";
 import { NumericFormat } from "react-number-format";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import dynamic from "next/dynamic";
 
 interface JobModalProps {
   open: boolean;
@@ -85,9 +86,12 @@ const JobModal: React.FC<JobModalProps> = ({
       setFormData((prev) => ({
         ...prev,
         company: {
-          _id: companies[0]?._id || "",
-          name: companies[0]?.name || "",
-          logo: companies[0]?.logo || "",
+          //@ts-ignore
+          _id: companies?._id || "",
+          //@ts-ignore
+          name: companies?.name || "",
+          //@ts-ignore
+          logo: companies?.logo || "",
         },
       }));
       // console.log("selected Company", companiesArray);
@@ -130,6 +134,9 @@ const JobModal: React.FC<JobModalProps> = ({
       [name]: value,
     }));
   };
+
+
+  const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>

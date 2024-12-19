@@ -61,7 +61,7 @@ const TopCompany: React.FC<{ companyId: string }> = ({ companyId }) => {
     useEffect(() => {
         const fetchCompany = async () => {
             try {
-                const response = await fetch(`http://localhost:8000/api/v1/companies/${companyId}`,
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/companies/${companyId}`,
                     { headers: { 'Content-Type': 'application/json' } }
                 );
                 if (!response.ok) {
@@ -189,7 +189,7 @@ const TopCompaniesList: React.FC = () => {
     useEffect(() => {
         const fetchTopCompanies = async () => {
             try {
-                const response = await fetch('http://localhost:8000/api/v1/companies/top/companies?criteria=highSalary&limit=3',
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/companies/top/companies?criteria=highSalary&limit=3`,
                     { headers: { 'Content-Type': 'application/json' } }
                 );
                 if (!response.ok) {

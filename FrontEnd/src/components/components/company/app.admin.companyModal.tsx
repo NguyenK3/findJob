@@ -14,6 +14,7 @@ import AddIcon from "@mui/icons-material/Add";
 import ReactQuill, { Quill } from "react-quill";
 import "react-quill/dist/quill.snow.css"; // imporit the CSS for the Quill editor
 import { useSession } from "next-auth/react";
+import dynamic from "next/dynamic";
 
 interface CompanyModalProps {
   open: boolean;
@@ -44,6 +45,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
   const access_token = session?.access_token;
 
   const quillRef = useRef<ReactQuill | null>(null);
+  const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
   const handleImageUpload = () => {
     const input = document.createElement("input");
@@ -57,7 +59,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
         const formData = new FormData();
         formData.append("fileUpload", file);
 
-        const response = await fetch("http://localhost:8000/api/v1/files/upload", {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/files/upload`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${access_token}`,
@@ -75,7 +77,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
           console.log(range)
           if (range) {
             const encodedFileName = encodeURIComponent(data.data.fileName);
-            const imageUrl = `http://localhost:8000/images/company/${encodedFileName}`;
+            const imageUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/images/company/${encodedFileName}`;
             quill.insertEmbed(range.index, "image", imageUrl);
           }
         }
@@ -285,6 +287,7 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
                 <ReactQuill
                   theme="snow"
                   value={value}
+                  // @ts-ignore
                   ref={quillRef}
                   onChange={setValue}
                   modules={modules}

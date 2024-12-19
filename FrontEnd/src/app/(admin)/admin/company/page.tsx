@@ -1,12 +1,11 @@
-import Company from "@/components/admin/company";
-import Layout from "@/components/admin/layout";
+"use client";
 
-const CompanyPage = () => {
+import CompanyAdmin from "@/components/admin/company";
+
+const CompanyAdminPage = () => {
   return (
-    <Layout>
-      <Company />
-    </Layout>
+    <CompanyAdmin />
   );
 };
 
-export default CompanyPage;
+export default CompanyAdminPage;

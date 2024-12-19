@@ -23,7 +23,7 @@ const PermissionTable = () => {
 
   const fetchPermissions = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/permissions/?current=${currentPage + 1}&pageSize=${pageSize}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/permissions/?current=${currentPage + 1}&pageSize=${pageSize}`, {
         headers: {
           Authorization: `Bearer ${access_token}`,
           "Content-Type": "application/json",
@@ -72,7 +72,7 @@ const PermissionTable = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/permissions/${id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/permissions/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${access_token}`,

@@ -46,7 +46,7 @@ const CompanyDetail: React.FC<CompanyDetailProps> = ({ id }) => {
     if (id) {
       const fetchCompany = async () => {
         const response = await fetch(
-          `http://localhost:8000/api/v1/companies/${id}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/companies/${id}`,
           {
             headers: {
               "Content-Type": "application/json",

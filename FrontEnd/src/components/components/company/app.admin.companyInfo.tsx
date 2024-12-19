@@ -1,10 +1,13 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, forwardRef } from 'react';
 import { Box, Typography, TextField, Button, Grid, Card, CardMedia, Input } from '@mui/material';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { useSession } from 'next-auth/react';
+import dynamic from 'next/dynamic';
 
 const CompanyInfo = () => {
+    const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+    const quillRef = useRef<ReactQuill | null>(null);
     const [companyData, setCompanyData] = useState({
         name: '',
         address: '',
@@ -14,7 +17,6 @@ const CompanyInfo = () => {
 
     const { data: session } = useSession();
     const access_token = session?.access_token;
-    const quillRef = useRef<ReactQuill | null>(null);
     const [file, setFile] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null); // for image preview
 
@@ -30,7 +32,7 @@ const CompanyInfo = () => {
                 const formData = new FormData();
                 formData.append("fileUpload", file);
 
-                const response = await fetch("http://localhost:8000/api/v1/files/upload", {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/files/upload`, {
                     method: "POST",
                     headers: {
                         Authorization: `Bearer ${access_token}`,
@@ -48,7 +50,7 @@ const CompanyInfo = () => {
                     console.log(range)
                     if (range) {
                         const encodedFileName = encodeURIComponent(data.data.fileName);
-                        const imageUrl = `http://localhost:8000/images/company/${encodedFileName}`;
+                        const imageUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/images/company/${encodedFileName}`;
                         quill.insertEmbed(range.index, "image", imageUrl);
                     }
                 }
@@ -75,7 +77,7 @@ const CompanyInfo = () => {
     useEffect(() => {
         const fetchUserDataById = async (id: string) => {
             try {
-                const response = await fetch(`http://localhost:8000/api/v1/users/${id}`,
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/users/${id}`,
                     {
                         headers: {
                             Authorization: `Bearer ${access_token}`,
@@ -93,7 +95,7 @@ const CompanyInfo = () => {
         // Fetch company data from API
         const fetchCompanyDataById = async (id: string) => {
             try {
-                const response = await fetch(`http://localhost:8000/api/v1/companies/${id}`,
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/companies/${id}`,
                     {
                         headers: {
                             Authorization: `Bearer ${access_token}`,
@@ -170,7 +172,7 @@ const CompanyInfo = () => {
 
     const submitForm = async (data: typeof companyData) => {
         try {
-            const response = await fetch("http://localhost:8000/api/v1/companies/", {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/companies/`, {
                 method: "PATCH",
                 headers: {
                     Authorization: `Bearer ${access_token}`,
@@ -246,8 +248,10 @@ const CompanyInfo = () => {
                         }))}
                         placeholder="Nhập nội dung miêu tả..."
                         style={{ height: '100%', width: '100%' }}
-                        modules={modules}
+                        //@ts-ignore
                         ref={quillRef}
+                        modules={modules}
+
                     />
                 </Box>
                 <Grid container spacing={2} justifyContent="flex-end" sx={{

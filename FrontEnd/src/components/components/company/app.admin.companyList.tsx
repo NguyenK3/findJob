@@ -32,6 +32,7 @@ import CompanyModal from "./app.admin.companyModal";
 import { format } from "date-fns";
 import { TransitionProps, useSnackbar } from "notistack";
 import { useSession } from "next-auth/react";
+import dynamic from "next/dynamic";
 
 // Define the TransitionComponent
 const Transition = forwardRef(function Transition(
@@ -42,6 +43,9 @@ const Transition = forwardRef(function Transition(
 });
 
 const CompanyList = () => {
+  if (!process.env.NEXT_PUBLIC_BACKEND_URL) {
+    return null
+  }
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(5);
   const [companies, setCompanies] = useState<ICompany[]>([]);
@@ -86,7 +90,7 @@ const CompanyList = () => {
     console.log("user_id", session?.user.company?._id)
     try {
       const res = await fetch(
-        `http://localhost:8000/api/v1/companies/?current=${page + 1
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/companies/?current=${page + 1
         }&pageSize=${pageSize}&name=/${searchName}/i&address=/${searchAddress}/i`,
         {
           headers: {
@@ -147,8 +151,8 @@ const CompanyList = () => {
 
   const handleSubmit = async (companyData: ICompany) => {
     const url = isEditMode
-      ? `http://localhost:8000/api/v1/companies/${currentCompany?._id}`
-      : "http://localhost:8000/api/v1/companies/";
+      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/companies/${currentCompany?._id}`
+      : "${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/companies/";
     const method = isEditMode ? "PATCH" : "POST";
 
     const res = await fetch(url, {
@@ -192,7 +196,7 @@ const CompanyList = () => {
   const handleDelete = async (id: string) => {
     try {
       const response = await fetch(
-        `http://localhost:8000/api/v1/companies/${id}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/companies/${id}`,
         {
           method: "DELETE",
           headers: {
@@ -216,7 +220,7 @@ const CompanyList = () => {
   const handleDeleteSelected = async () => {
     try {
       const deletePromises = selectedCompanies.map((id) =>
-        fetch(`http://localhost:8000/api/v1/companies/${id}`, {
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/companies/${id}`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${access_token}`,
@@ -242,7 +246,7 @@ const CompanyList = () => {
 
   const fetchCompanies = async () => {
     try {
-      const response = await fetch("http://localhost:8000/api/v1/companies", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/companies`, {
         headers: {
           Authorization: `Bearer ${access_token}`,
           "Content-Type": "application/json",
@@ -258,6 +262,8 @@ const CompanyList = () => {
       return [];
     }
   };
+
+  const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
   const columns: GridColDef[] = [
     {

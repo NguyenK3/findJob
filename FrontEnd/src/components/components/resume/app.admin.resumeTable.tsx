@@ -32,7 +32,7 @@ const ResumeTable = () => {
 
   const fetchJobs = async () => {
     try {
-      const jobsResponse = await fetch(`http://localhost:8000/api/v1/jobs`, {
+      const jobsResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/jobs`, {
         headers: {
           Authorization: `Bearer ${access_token}`,
           "Content-Type": "application/json",
@@ -71,7 +71,7 @@ const ResumeTable = () => {
 
   const fetchCompanies = async () => {
     try {
-      const companiesResponse = await fetch(`http://localhost:8000/api/v1/companies`, {
+      const companiesResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/companies`, {
         headers: {
           Authorization: `Bearer ${access_token}`,
           "Content-Type": "application/json",
@@ -86,7 +86,7 @@ const ResumeTable = () => {
 
   const fetchResumes = async (page: number, rowsPerPage: number) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/resumes/?current=${page + 1
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/resumes/?current=${page + 1
         }&pageSize=${rowsPerPage}`, {
         headers: {
           Authorization: `Bearer ${access_token}`,

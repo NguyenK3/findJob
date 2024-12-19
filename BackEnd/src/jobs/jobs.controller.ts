@@ -50,4 +50,15 @@ export class JobsController {
   remove(@Param('id') id: string, @User() user: IUsers) {
     return this.jobsService.remove(id, user);
   }
+
+  @Get('company/:companyId')
+  @Public()
+  @ResponseMessage('Fetch Jobs By Company Id')
+  async findJobByCompanyId(
+    @Param('companyId') companyId: string,
+    @Query('current') currentPage: string,
+    @Query('pageSize') limit: string
+  ) {
+    return await this.jobsService.findJobByCompanyId(companyId, +currentPage, +limit);
+  }
 }
