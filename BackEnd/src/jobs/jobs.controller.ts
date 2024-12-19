@@ -70,6 +70,6 @@ export class JobsController {
     @Query('pageSize') limit: string,
     @Query() qs: string
   ) {
-    return this.jobsService.findAllActiveJobs(+currentPage, +limit, qs);
+    return await this.jobsService.findAllActiveJobs(+currentPage, +limit, qs);
   }
 }

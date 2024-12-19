@@ -65,6 +65,10 @@ export class JobsService {
   async findAllActiveJobs(currentPage: number, limit: number, qs: string) {
     const { filter, projection, population } = aqp(qs);
 
+    //Delete original start
+    delete filter.current
+    delete filter.pageSize
+
     // Chỉ tìm kiếm các job có isActive là true
     filter.isActive = true;
 
