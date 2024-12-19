@@ -167,6 +167,8 @@ const UserDialog = ({
     handleClose();
   };
 
+  const [anchorModalEl, setAnchorModalEl] = useState<null | HTMLElement>(null);
+  const openModal = Boolean(anchorEl);
   const handleModalClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -291,9 +293,9 @@ const UserDialog = ({
             </Button>
             <Menu
               id="company-menu"
-              anchorEl={anchorEl}
-              open={open}
-              onClose={() => setAnchorEl(null)}
+              anchorEl={anchorModalEl}
+              open={openModal}
+              onClose={() => setAnchorModalEl(null)}
               MenuListProps={{
                 sx: {
                   maxHeight: 300,
@@ -337,21 +339,6 @@ const UserDialog = ({
                 </MenuItem>
               ))}
             </Select>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Giới tính"
-              name="gender"
-              value={formData.gender}
-              onChange={handleChange}
-              select
-              required
-            >
-              <MenuItem value="Nam">Nam</MenuItem>
-              <MenuItem value="Nữ">Nữ</MenuItem>
-              <MenuItem value="Khác">Khác</MenuItem>
-            </TextField>
           </Grid>
           <Grid item xs={12}>
             <TextField

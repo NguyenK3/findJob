@@ -69,9 +69,9 @@ export class RegisterUserDto {
     // @IsNotEmpty({ message: 'Role should not be empty' })
     role: mongoose.Schema.Types.ObjectId
 
-    // @IsNotEmptyObject()
-    // @IsObject()
-    // @ValidateNested()
-    // @Type(() => Company)
-    // company: Company
+    @IsNotEmptyObject()
+    @IsObject()
+    @ValidateNested()
+    @Type(() => Company)
+    company: Company
 }

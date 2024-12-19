@@ -52,7 +52,7 @@ export class UsersService {
   }
 
   async register(registerUserDto: RegisterUserDto) {
-    const { email, password, name, age, gender, address } = registerUserDto;
+    const { email, password, name, age, gender, address, company } = registerUserDto;
     const isExistEmail = await this.userModel.findOne({ email });
     if (isExistEmail) {
       throw new BadRequestException(`${email} is already exists`);
@@ -63,6 +63,7 @@ export class UsersService {
       email,
       password: hashPassword,
       name, age, gender, address,
+      company: company,
       role: fetchUserRole?._id
     })
 
