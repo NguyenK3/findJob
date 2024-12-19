@@ -44,8 +44,10 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
   const { data: session } = useSession();
   const access_token = session?.access_token;
 
+  // const ReactQuill = dynamic(() => import("react-quill"), { ssr: false, loading: () => <p>Loading...</p> });
+  const ReactQuill =
+    typeof window === 'object' ? require('react-quill') : undefined;
   const quillRef = useRef<ReactQuill | null>(null);
-  const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
   const handleImageUpload = () => {
     const input = document.createElement("input");
@@ -287,7 +289,6 @@ const CompanyModal: React.FC<CompanyModalProps> = ({
                 <ReactQuill
                   theme="snow"
                   value={value}
-                  // @ts-ignore
                   ref={quillRef}
                   onChange={setValue}
                   modules={modules}

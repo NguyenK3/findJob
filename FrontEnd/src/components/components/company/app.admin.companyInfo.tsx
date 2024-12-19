@@ -1,13 +1,15 @@
-import React, { useState, useEffect, useRef, useMemo, forwardRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, forwardRef, lazy, Suspense } from 'react';
 import { Box, Typography, TextField, Button, Grid, Card, CardMedia, Input } from '@mui/material';
-import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { useSession } from 'next-auth/react';
-import dynamic from 'next/dynamic';
+import ReactQuill from 'react-quill';
+
 
 const CompanyInfo = () => {
-    const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+    const ReactQuill =
+        typeof window === 'object' ? require('react-quill') : undefined;
     const quillRef = useRef<ReactQuill | null>(null);
+    // const ReactQuill = lazy(() => import('react-quill'))
     const [companyData, setCompanyData] = useState({
         name: '',
         address: '',
@@ -44,7 +46,7 @@ const CompanyInfo = () => {
                 const data = await response.json();
                 const quill = quillRef.current?.getEditor();
                 const range = quill?.getSelection();
-                console.log(range)
+                // console.log(range)
                 if (quill) {
                     const range = quill.getSelection();
                     console.log(range)
@@ -240,19 +242,20 @@ const CompanyInfo = () => {
                     <Typography variant="subtitle1" gutterBottom>
                         Miêu tả
                     </Typography>
-                    <ReactQuill
-                        value={companyData.description}
-                        onChange={(value) => setCompanyData((prevData) => ({
-                            ...prevData,
-                            description: value,
-                        }))}
-                        placeholder="Nhập nội dung miêu tả..."
-                        style={{ height: '100%', width: '100%' }}
-                        //@ts-ignore
-                        ref={quillRef}
-                        modules={modules}
+                    <Suspense fallback={<div>Loading...</div>}>
+                        <ReactQuill
+                            value={companyData.description}
+                            onChange={(value: string) => setCompanyData((prevData) => ({
+                                ...prevData,
+                                description: value,
+                            }))}
+                            placeholder="Nhập nội dung miêu tả..."
+                            style={{ height: '100%', width: '100%' }}
+                            ref={quillRef}
+                            modules={modules}
+                        />
+                    </Suspense>
 
-                    />
                 </Box>
                 <Grid container spacing={2} justifyContent="flex-end" sx={{
                     marginTop: 1

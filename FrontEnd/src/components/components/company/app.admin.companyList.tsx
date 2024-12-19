@@ -152,7 +152,7 @@ const CompanyList = () => {
   const handleSubmit = async (companyData: ICompany) => {
     const url = isEditMode
       ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/companies/${currentCompany?._id}`
-      : "${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/companies/";
+      : `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/companies/`;
     const method = isEditMode ? "PATCH" : "POST";
 
     const res = await fetch(url, {
@@ -262,8 +262,6 @@ const CompanyList = () => {
       return [];
     }
   };
-
-  const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
   const columns: GridColDef[] = [
     {

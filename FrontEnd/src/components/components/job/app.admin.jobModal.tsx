@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Dialog,
   Box,
@@ -17,7 +17,6 @@ import dayjs, { Dayjs } from "dayjs";
 import { NumericFormat } from "react-number-format";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import dynamic from "next/dynamic";
 
 interface JobModalProps {
   open: boolean;
@@ -55,6 +54,9 @@ const JobModal: React.FC<JobModalProps> = ({
     endDate: dayjs(),
     description: "",
   });
+  const ReactQuill =
+    typeof window === 'object' ? require('react-quill') : undefined;
+  const quillRef = useRef<ReactQuill | null>(null);
 
   useEffect(() => {
     if (job) {
@@ -134,9 +136,6 @@ const JobModal: React.FC<JobModalProps> = ({
       [name]: value,
     }));
   };
-
-
-  const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -380,7 +379,7 @@ const JobModal: React.FC<JobModalProps> = ({
               >
                 <ReactQuill
                   value={formData.description}
-                  onChange={(value) =>
+                  onChange={(value: string) =>
                     setFormData((prev) => ({
                       ...prev,
                       description: value,
