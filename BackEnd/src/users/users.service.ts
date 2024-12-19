@@ -105,7 +105,7 @@ export class UsersService {
 
   async findOne(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id)) throw new BadRequestException('Invalid user ID');
-    return await this.userModel.findOne({ _id: id })
+    return await this.userModel.findById({ _id: id })
       .select('-password')
       .populate({
         path: "role",

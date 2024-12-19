@@ -22,7 +22,7 @@ interface UserDialogProps {
   isEditMode: boolean;
   companies: ICompany[];
   roles: IRole[];
-  roleId: string;
+  roleId: string
 }
 
 const UserDialog = ({
@@ -52,8 +52,16 @@ const UserDialog = ({
     address: "",
   });
 
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
   useEffect(() => {
     if (user) {
+      // var companyId = user.company?._id;
+      // var companyName = user.company?.name;
       setFormData({
         _id: user?._id || "",
         email: user.email,
@@ -61,9 +69,9 @@ const UserDialog = ({
         name: user.name,
         age: user.age,
         gender:
-          user.gender === "MALE"
+          user.gender === "male"
             ? "Nam"
-            : user.gender === "FEMALE"
+            : user.gender === "female"
               ? "Nữ"
               : "Khác",
         role: roleId || "",
@@ -89,10 +97,9 @@ const UserDialog = ({
   }, [user, roles]);
 
   const handleChange = (
-    e:
-      | React.ChangeEvent<
-        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-      >
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
       | SelectChangeEvent<string>,
   ) => {
     const { name, value } = e.target;
@@ -113,7 +120,8 @@ const UserDialog = ({
         role: selectedRole?._id || "",
       }));
       // console.log(formData);
-    } else {
+    }
+    else {
       setFormData((prev) => ({
         ...prev,
         [name]: value,
@@ -259,21 +267,19 @@ const UserDialog = ({
             </Select>
           </Grid>
           <Grid item xs={12} sm={6}>
-            <Select
-              value={formData.company._id || ""}
-              name="company"
-              onChange={handleChange}
+            <TextField
               fullWidth
+              label="Giới tính"
+              name="gender"
+              value={formData.gender}
+              onChange={handleChange}
+              select
+              required
             >
-              <MenuItem value="" disabled>
-                Chọn công ty
-              </MenuItem>
-              {companies.map((company) => (
-                <MenuItem key={company._id} value={company._id}>
-                  {company.name}
-                </MenuItem>
-              ))}
-            </Select>
+              <MenuItem value="Nam">Nam</MenuItem>
+              <MenuItem value="Nữ">Nữ</MenuItem>
+              <MenuItem value="Khác">Khác</MenuItem>
+            </TextField>
           </Grid>
           <Grid item xs={12}>
             <TextField

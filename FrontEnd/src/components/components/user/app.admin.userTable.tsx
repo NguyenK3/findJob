@@ -242,8 +242,11 @@ const UsersTable: React.FC<UsersTableProps> = ({
   const handleUpdateOpen = async (user: IUser) => {
     setIsEditMode(true);
     setCurrentUser(user);
+    // console.log("User:", user); // Thêm dòng này để kiểm tra dữ liệu người dùng
     const roleId = typeof user.role === "object" ? user.role._id : user.role;
+    // const companyName = user.company ? user.company : { _id: "", name: "" };
     setRoleId(roleId || "");
+    // setCompany(companyName);
     setUserModalOpen(true);
   };
 

@@ -19,6 +19,7 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  Menu,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useSession } from 'next-auth/react';
@@ -48,6 +49,22 @@ const ManageUserPage: React.FC = () => {
   const [companies, setCompanies] = useState<ICompany[]>([]);
   const [password, setPassword] = useState<string>('');
 
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = (companyId: string) => {
+    const selectedCompany = companies.find(company => company._id === companyId);
+    setFormData((prev) => ({
+      ...prev,
+      company: { _id: companyId, name: selectedCompany?.name || '' },
+    }));
+    setAnchorEl(null);
+  };
+
   const fetchResumes = async () => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/resumes/by-user`, {
@@ -74,6 +91,7 @@ const ManageUserPage: React.FC = () => {
         },
       });
       const data = await response.json();
+      // console.log('User data:', data.data);
       return data.data;
     } catch (error) {
       console.error('Failed to fetch user:', error);
@@ -92,7 +110,7 @@ const ManageUserPage: React.FC = () => {
         body: JSON.stringify(updatedFormData),
       });
 
-      console.log('Response:', updatedFormData);
+      // console.log('Response:', updatedFormData);
 
       if (!response.ok) {
         throw new Error('Failed to update user');
@@ -111,15 +129,21 @@ const ManageUserPage: React.FC = () => {
       const userId = session?.user._id;
       const userData = await fetchUserById(userId || '');
       if (userData) {
+        console.log('User data:', userData);
         setFormData({
           _id: userData._id,
           name: userData.name,
           email: userData.email,
           age: userData.age,
-          gender: userData.gender,
+          gender:
+            userData.gender === "male"
+              ? "Nam"
+              : userData.gender === "female"
+                ? "Nữ"
+                : "Khác",
           address: userData.address,
           role: userData.role ? userData.role._id : '',
-          company: userData.company ? { _id: userData.company._id, name: userData.company.name } : { _id: '', name: '' },
+          company: userData.company || { _id: "", name: "" },
           permissions: userData.permissions || [],
           createdAt: userData.createdAt || new Date().toISOString(),
           deletedAt: userData.deletedAt || null,
@@ -259,12 +283,12 @@ const ManageUserPage: React.FC = () => {
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
               <TextField
-                fullWidth
                 label="Tên"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
                 required
+                fullWidth
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -304,23 +328,64 @@ const ManageUserPage: React.FC = () => {
                 <MenuItem value="Khác">Khác</MenuItem>
               </TextField>
             </Grid>
-            <Grid item xs={12}>
-              <TextField
+            <Grid item xs={12} sm={6}>
+              <Typography variant="subtitle1" gutterBottom>
+                Chọn Công Ty
+              </Typography>
+              <Button
+                aria-controls={open ? 'company-menu' : undefined}
+                aria-haspopup="true"
+                aria-expanded={open ? 'true' : undefined}
+                onClick={handleClick}
                 fullWidth
-                label="Công ty"
-                name="company"
-                value={formData.company?._id ?? ''}
-                onChange={handleChange}
-                select
-                required
+                variant="outlined"
+                sx={{
+                  textTransform: 'none',
+                  fontWeight: 500,
+                  padding: '10px',
+                  borderColor: 'primary.main',
+                  '&:hover': {
+                    backgroundColor: 'primary.light',
+                  },
+                }}
               >
-                {companies.map((company) => (
-                  <MenuItem key={company._id} value={company._id}>
-                    {company.name}
-                  </MenuItem>
-                ))}
-              </TextField>
+                {formData.company?.name || 'Chọn công ty'}
+              </Button>
+              <Menu
+                id="company-menu"
+                anchorEl={anchorEl}
+                open={open}
+                onClose={() => setAnchorEl(null)}
+                MenuListProps={{
+                  sx: {
+                    maxHeight: 300,
+                    width: '300px',
+                    bgcolor: 'background.paper',
+                    boxShadow: 3,
+                  },
+                }}
+              >
+                {companies?.length > 0 ? (
+                  companies.map((company) => (
+                    <MenuItem
+                      key={company._id}
+                      value={company._id}
+                      onClick={() => handleClose(company._id || '')}
+                      sx={{
+                        '&:hover': {
+                          bgcolor: 'primary.light',
+                        },
+                      }}
+                    >
+                      {company.name}
+                    </MenuItem>
+                  ))
+                ) : (
+                  <MenuItem disabled>Không có công ty nào</MenuItem>
+                )}
+              </Menu>
             </Grid>
+
             <Grid item xs={12}>
               <TextField
                 fullWidth
