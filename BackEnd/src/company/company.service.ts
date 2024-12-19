@@ -182,13 +182,6 @@ export class CompanyService {
         }
       ]);
     }
-
-    // Log từng giá trị trong kết quả
-    // companies.forEach(company => {
-    //   console.log(`Company ID: ${company._id}`);
-    //   console.log(`Jobs: ${JSON.stringify(company.jobs_data, null, 2)}`);
-    // });
-
     return companies;
   }
 }

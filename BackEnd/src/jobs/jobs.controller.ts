@@ -61,4 +61,14 @@ export class JobsController {
   ) {
     return await this.jobsService.findJobByCompanyId(companyId, +currentPage, +limit);
   }
+
+  @Get('all/active')
+  @Public()
+  @ResponseMessage('Fetch All Jobs Is Active')
+  async findJobActive(
+    @Query('current') currentPage: string,
+    @Query('pageSize') limit: string
+  ) {
+    return this.jobsService.findAllActiveJobs(+currentPage, +limit);
+  }
 }

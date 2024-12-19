@@ -89,7 +89,7 @@ const JobCard = ({ job, onClick }: { job: IJob; onClick: () => void }) => {
       }}
       onClick={onClick}
     >
-      {/* Icon Super Hot */}
+      {/* Icon Super Hot
       {job.isActive && (
         <Box
           position="absolute"
@@ -116,7 +116,7 @@ const JobCard = ({ job, onClick }: { job: IJob; onClick: () => void }) => {
           <WhatshotIcon fontSize="small" sx={{ marginRight: 0.5 }} />
           SUPER HOT
         </Box>
-      )}
+      )} */}
 
       {/* Logo công ty */}
       <Box display="flex" alignItems="center" mb={2}>
@@ -252,7 +252,7 @@ const JobList = () => {
     });
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/jobs/?${query.toString()}`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/jobs/all/active?${query.toString()}`,
       {
         headers: {
           // Authorization: `Bearer ${access_token}`,

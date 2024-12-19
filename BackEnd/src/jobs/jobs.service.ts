@@ -62,8 +62,27 @@ export class JobsService {
     }
   }
 
-  async findAllActiveJobs() {
-    return this.jobModel.find({ isActive: true }).exec();
+  async findAllActiveJobs(currentPage: number, limit: number) {
+    let offset = (currentPage - 1) * limit;
+    let defaultLimit = limit ? limit : 10;
+    const totalItems = await this.jobModel.countDocuments({ isActive: true });
+    const totalPages = Math.ceil(totalItems / defaultLimit);
+
+    const result = await this.jobModel.find({ isActive: true })
+      .skip(offset)
+      .limit(defaultLimit)
+      .sort("-createdAt")
+      .exec();
+
+    return {
+      meta: {
+        current: currentPage,
+        pageSize: limit,
+        pages: totalPages,
+        total: totalItems
+      },
+      result
+    };
   }
 
   async findOne(id: string) {
