@@ -10,6 +10,8 @@ import {
   Select,
   useTheme,
   SelectChangeEvent,
+  Menu,
+  Typography,
 } from "@mui/material";
 import { useState, useEffect } from "react";
 
@@ -165,6 +167,19 @@ const UserDialog = ({
     handleClose();
   };
 
+  const handleModalClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleModalClose = (companyId: string) => {
+    const selectedCompany = companies.find(company => company._id === companyId);
+    setFormData((prev) => ({
+      ...prev,
+      company: { _id: companyId, name: selectedCompany?.name || '' },
+    }));
+    setAnchorEl(null);
+  };
+
   return (
     <Dialog
       open={open}
@@ -250,6 +265,63 @@ const UserDialog = ({
               <MenuItem value="Nữ">Nữ</MenuItem>
               <MenuItem value="Khác">Khác</MenuItem>
             </TextField>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="subtitle1" gutterBottom>
+              Chọn Công Ty
+            </Typography>
+            <Button
+              aria-controls={open ? 'company-menu' : undefined}
+              aria-haspopup="true"
+              aria-expanded={open ? 'true' : undefined}
+              onClick={handleModalClick}
+              fullWidth
+              variant="outlined"
+              sx={{
+                textTransform: 'none',
+                fontWeight: 500,
+                padding: '10px',
+                borderColor: 'primary.main',
+                '&:hover': {
+                  backgroundColor: 'primary.light',
+                },
+              }}
+            >
+              {formData.company?.name || 'Chọn công ty'}
+            </Button>
+            <Menu
+              id="company-menu"
+              anchorEl={anchorEl}
+              open={open}
+              onClose={() => setAnchorEl(null)}
+              MenuListProps={{
+                sx: {
+                  maxHeight: 300,
+                  width: '300px',
+                  bgcolor: 'background.paper',
+                  boxShadow: 3,
+                },
+              }}
+            >
+              {companies?.length > 0 ? (
+                companies.map((company) => (
+                  <MenuItem
+                    key={company._id}
+                    value={company._id}
+                    onClick={() => handleModalClose(company._id || '')}
+                    sx={{
+                      '&:hover': {
+                        bgcolor: 'primary.light',
+                      },
+                    }}
+                  >
+                    {company.name}
+                  </MenuItem>
+                ))
+              ) : (
+                <MenuItem disabled>Không có công ty nào</MenuItem>
+              )}
+            </Menu>
           </Grid>
           <Grid item xs={12} sm={6}>
             <Select

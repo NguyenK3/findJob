@@ -136,9 +136,9 @@ const ManageUserPage: React.FC = () => {
           email: userData.email,
           age: userData.age,
           gender:
-            userData.gender === "male"
+            userData.gender === "Male"
               ? "Nam"
-              : userData.gender === "female"
+              : userData.gender === "Female"
                 ? "Nữ"
                 : "Khác",
           address: userData.address,
