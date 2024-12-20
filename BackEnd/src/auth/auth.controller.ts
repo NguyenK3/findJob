@@ -33,13 +33,13 @@ export class AuthController {
     return this.authService.register(registerUserDTO)
   }
 
-  @ResponseMessage('Get an information of user')
-  @Get('/account')
-  async account(@User() user: IUsers) {
-    const storageUser = await this.roleService.findOne(user.role._id) as any
-    user.permissions = storageUser.permissions
-    return { user }
-  }
+  // @ResponseMessage('Get an information of user')
+  // @Get('/account')
+  // async account(@User() user: IUsers) {
+  //   const storageUser = await this.roleService.findOne(user.role._id) as any
+  //   user.permissions = storageUser.permissions
+  //   return { user }
+  // }
 
   @ResponseMessage('Get User by refresh Token')
   @Public()
@@ -59,20 +59,20 @@ export class AuthController {
   }
 
 
-  // @UseGuards(JwtAuthGuard)
-  @Get('profile')
-  getProfile(@Req() req) {
-    return req.user;
-  }
-
-  // @Get('forgot-password')
-  // async forgotPassword(@Body() body) {
-  //   return this.authService.forgotPassword(body)
+  // // @UseGuards(JwtAuthGuard)
+  // @Get('profile')
+  // getProfile(@Req() req) {
+  //   return req.user;
   // }
 
-  @Get()
-  @Render('home')
-  getHello() {
-    // return this.appService.getHello();
-  }
+  // // @Get('forgot-password')
+  // // async forgotPassword(@Body() body) {
+  // //   return this.authService.forgotPassword(body)
+  // // }
+
+  // @Get()
+  // @Render('home')
+  // getHello() {
+  //   // return this.appService.getHello();
+  // }
 }
